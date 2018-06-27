@@ -18,6 +18,10 @@ class CourseItem(scrapy.Item):
     studentnum = scrapy.Field()
     # 课程URL
     url = scrapy.Field()
+    # 课程图片连接
+    image_urls = scrapy.Field()
     # 课程图片
-    image = scrapy.Field()
+    image_paths = scrapy.Field()
+    # 课程简介
+    describe = scrapy.Field()
 

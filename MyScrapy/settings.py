@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import os
 # Scrapy settings for MyScrapy project
 #
 # For simplicity, this file contains only settings considered important or
@@ -64,9 +64,10 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'MyScrapy.pipelines.MyscrapyPipeline': 300,
-#}
+ITEM_PIPELINES = {
+    'MyScrapy.MyPipeLines.MyPipeline': 500,
+    'MyScrapy.ImagesPipeLines.ImagesPipeline': 400,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -88,3 +89,7 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+IMAGES_URLS_FIELD ="image_url"  #image_url是在items.py中配置的网络爬取得图片地址
+project_dir=os.path.abspath(os.path.dirname(__file__))  #获取当前爬虫项目的绝对路径
+IMAGES_STORE=os.path.join(project_dir,'images')  #组装新的图片路径

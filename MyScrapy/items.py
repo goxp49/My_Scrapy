@@ -9,7 +9,6 @@ import scrapy
 
 
 class CourseItem(scrapy.Item):
-    # define the fields for your item here like:
     # 课程标题
     title = scrapy.Field()
     # 课程等级
@@ -25,3 +24,14 @@ class CourseItem(scrapy.Item):
     # 课程简介
     describe = scrapy.Field()
 
+class IPPorxyItem(scrapy.Item):
+    # IP地址
+    ip = scrapy.Field()
+    # 类型
+    type = scrapy.Field()
+    # 位置
+    address = scrapy.Field()
+    # 响应速度
+    speed = scrapy.Field()
+    # 最后验证时间
+    update_time = scrapy.Field()

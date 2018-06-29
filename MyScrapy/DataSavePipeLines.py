@@ -2,11 +2,16 @@
 
 from scrapy.exceptions import DropItem
 import json
-from .UserFunction import ValidateIP
 
-class IPPorxyPipeLine(object):
+# Define your item pipelines here
+#
+# Don't forget to add your pipeline to the ITEM_PIPELINES setting
+# See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
+
+
+class DataSavePipeLine(object):
     def __init__(self):
-        self.file=open('IPPorxy.json','w',encoding='utf-8')
+        self.file=open('course_data.json','w',encoding='utf-8')
     def process_item(self, item, spider):
         #读取item中的数据
         line = json.dumps(dict(item), ensure_ascii=False) + "\n"

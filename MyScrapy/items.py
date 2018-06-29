@@ -24,7 +24,7 @@ class CourseItem(scrapy.Item):
     # 课程简介
     describe = scrapy.Field()
 
-class IPPorxyItem(scrapy.Item):
+class IPPorxyItem_kuaidaili(scrapy.Item):
     # IP地址
     ip = scrapy.Field()
     # 类型
@@ -35,3 +35,9 @@ class IPPorxyItem(scrapy.Item):
     speed = scrapy.Field()
     # 最后验证时间
     update_time = scrapy.Field()
+
+class IPPorxyItem_xici(scrapy.Item):
+    # IP地址
+    ip = scrapy.Field()
+    # 类型
+    type = scrapy.Field()

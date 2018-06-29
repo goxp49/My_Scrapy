@@ -1,9 +1,9 @@
 import scrapy
-from ..items import IPPorxyItem
+from ..items import IPPorxyItem_kuaidaili
 
 class IPScrapy(scrapy.Spider):
     #定义爬虫名称
-    name = 'IPScrapy'
+    name = 'IPScrapy_kuaidaili'
     # 允许访问的域
     #allowed_domains = ['imooc.com']
     # 发送给服务器的http头信息，有的网站需要伪装出浏览器头进行爬取，有的则不需要
@@ -22,7 +22,7 @@ class IPScrapy(scrapy.Spider):
 
         for ip_porxy in response.css('#list tbody tr'):
             # 创建对象
-            item = IPPorxyItem()
+            item = IPPorxyItem_kuaidaili()
             #获取ip地址 + 端口号
             item['ip'] = ':'.join([ip_porxy.css('td::text').extract_first(),ip_porxy.css('td::text').extract()[1]])
             #获取类型

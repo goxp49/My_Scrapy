@@ -4,14 +4,7 @@ from ..items import IPPorxyItem_kuaidaili
 class IPScrapy(scrapy.Spider):
     #定义爬虫名称
     name = 'IPScrapy_kuaidaili'
-    # 允许访问的域
-    #allowed_domains = ['imooc.com']
-    # 发送给服务器的http头信息，有的网站需要伪装出浏览器头进行爬取，有的则不需要
-    headers = {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36',
-    }
+
     # 用来保持登录状态，可把chrome上拷贝下来的字符串形式cookie转化成字典形式，粘贴到此处
     cookies = {}
 

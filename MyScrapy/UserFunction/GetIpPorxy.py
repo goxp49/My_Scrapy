@@ -64,6 +64,7 @@ def getipporxy(urls):
 def testip(proxy):
     socket.setdefaulttimeout(5)  # 设置全局超时时间
     url = "http://ip.chinaz.com/getip.aspx"  # 打算爬取的网址
+
     try:
         proxy_support = urllib.request.ProxyHandler(proxy)
         opener = urllib.request.build_opener(proxy_support)
@@ -72,7 +73,10 @@ def testip(proxy):
         res = urllib.request.urlopen(url).read()
         lock.acquire()  # 获得锁
         print(proxy, 'is OK')
-        file_proxy.write('%s\n' % str(proxy))  # 写入该代理IP
+        #将数据转换为'https:118.31.220.3:8080'格式
+        for (k, v) in proxy.items():
+            proxy = k + '://' + v
+        file_proxy.write('%s\n' % proxy)  # 写入该代理IP
         lock.release()  # 释放锁
     except Exception as e:
         lock.acquire()

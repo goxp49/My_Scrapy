@@ -9,7 +9,7 @@ class IPScrapy(scrapy.Spider):
     cookies = {}
 
     #定义开始爬取的网址
-    start_urls=['https://www.kuaidaili.com/free/inha/%d/' % x for x in range(4)]
+    start_urls=['https://www.kuaidaili.com/free/inha/%d/' % x for x in range(1,4)]
 
     def parse(self, response):
 
@@ -28,3 +28,8 @@ class IPScrapy(scrapy.Spider):
             item['update_time'] = ip_porxy.css('td::text').extract()[6]
             # 返回信息
             yield item
+
+    def make_requests_from_url(self, url):
+        self.logger.debug('Try first time')
+        #'dont_filter = True'时允许重复发送请求直到成功为止
+        return scrapy.Request(url=url, meta={'download_timeout': 5}, callback=self.parse,dont_filter=True)

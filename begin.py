@@ -1,3 +1,4 @@
 from scrapy import cmdline
-
-cmdline.execute("scrapy crawl IPScrapy_kuaidaili".split())
+import os
+os.system("python ./MyScrapy/UserFunction/GetIpPorxy.py")
+#cmdline.execute("scrapy crawl IPScrapy_kuaidaili".split())

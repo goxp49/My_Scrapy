@@ -4,6 +4,8 @@ import re
 import socket
 import threading
 import os
+from scrapy import cmdline
+from MyScrapy.settings import PorxyFilePath
 
 # 新建一个模拟浏览器的请求头
 headers = {
@@ -13,8 +15,6 @@ headers = {
 }
 
 # 新建一个储存有效IP的文档
-project_dir = os.path.dirname(os.path.dirname(os.getcwd()))  # 获取当前爬虫项目的绝对路径
-PorxyFilePath = os.path.join(project_dir, 'proxy_ip.txt')  # 组装新的图片路径
 file_proxy = open(PorxyFilePath, 'w')
 # 建立一个锁，避免竞争
 lock = threading.Lock()
@@ -47,7 +47,7 @@ def getipporxy(urls):
     # 多线程验证IP
     threads = []
     for proxy in proxys:
-        thread = threading.Thread(target=testip, args=[proxy])
+        thread = threading.Thread(target=connectip, args=[proxy])
         threads.append(thread)
         thread.start()
     # 阻塞主进程，等待所有子线程结束
@@ -61,7 +61,7 @@ def getipporxy(urls):
     # 验证代理IP有效性的方法
 
 #验证代理IP有效性的方法
-def testip(proxy):
+def connectip(proxy):
     socket.setdefaulttimeout(5)  # 设置全局超时时间
     url = "http://ip.chinaz.com/getip.aspx"  # 打算爬取的网址
 
@@ -84,4 +84,9 @@ def testip(proxy):
         lock.release()
 
 if __name__ == '__main__':
+    '''
+        1.更新IP池
+        2.开启爬取
+    '''
     getipporxy(["http://www.xicidaili.com/nn/"])
+    cmdline.execute("scrapy crawl IPScrapy_kuaidaili".split())

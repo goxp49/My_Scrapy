@@ -71,10 +71,11 @@ DEFAULT_REQUEST_HEADERS = {
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-#    'myproxies.middlewares.MyCustomDownloaderMiddleware': 543,
-     'scrapy.contrib.downloadermiddleware.httpproxy.HttpProxyMiddleware':None,
-     'MyScrapy.middlewares.ProxyMiddleWare':125,
-     'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware':None
+    #    'myproxies.middlewares.MyCustomDownloaderMiddleware': 543,
+    'scrapy.contrib.downloadermiddleware.httpproxy.HttpProxyMiddleware': None,
+    'MyScrapy.middlewares.ProxyMiddleWare': 125,
+    'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware': None,
+    'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,  #设置不参与scrapy的自动重试的动作
 }
 
 

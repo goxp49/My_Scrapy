@@ -61,14 +61,18 @@ class ProxyMiddleWare(object):
         # - return None: continue processing this exception
         # - return a Response object: stops process_exception() chain
         # - return a Request object: stops process_exception() chain
-        pass
+        #pass
+
+        proxy = self.get_random_proxy()
+        print('IP请求超时,将使用新IP请求：'+ proxy)
+        request.meta['proxy'] = proxy
+        return request
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
 
     def get_random_proxy(self):
         """随机从文件中读取proxy"""
-        print(PorxyFilePath)
         while 1:
             with open(PorxyFilePath, 'r') as file:
                 proxies = file.readlines()

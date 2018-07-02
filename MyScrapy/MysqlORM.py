@@ -29,7 +29,7 @@ class Fiction(Base):
     title = Column(String(100), nullable=False,unique=True)
     author = Column(String(20),nullable=False)
     type = Column(String(20),nullable=False)
-    static = Column(Boolean,default=False)
+    status = Column(Boolean,default=False)
     words = Column(Float,default=0)
     fiction_urls = Column(String(100), nullable=False)
     image_urls = Column(String(100), nullable=True)

@@ -21,21 +21,23 @@ class QiDianScrapy(scrapy.Spider):
 
     def parse(self, response):
 
-        for course in response.css('.course-card-container'):
+        for fiction in response.css('.all-img-list li'):
             # 创建对象
             item = FictionItem()
-            #获取图片地址
-            item['image_urls'] ='http:' + course.css('img::attr(src)').extract_first()
-            # 获取课程名称
-            item['title'] = course.css('.course-card-name::text').extract_first()
+            #获取小说名称
+            item['title'] = fiction.css('a[data-eid=qd_B58]::text').extract_first()
+            # 获取作者
+            item['author'] = fiction.css('a[data-eid=qd_B59]::text').extract_first()
+            # 获取小说类型
+            item['type'] = fiction.css('a[data-eid=qd_B60]::text').extract_first()
+            # 获取小说状态
+            item['status'] = fiction.css('.author span::text').extract_first()
+            # 获取小说中字数
+            item['words'] = fiction.css('.author span::text').extract_first()
+            # 获取图片链接
+            item['image_urls'] = 'http:' + fiction.css('a[data-eid=qd_B57] img::attr(src)').extract_first()
             #print('目前课程名称：' + item['title'])
-            # 获取课程等级
-            item['grade'] = course.css('.course-card-info span::text').extract_first()
-            # 获取课程人数
-            item['studentnum'] = course.css('.course-card-info span::text').extract()[1]
-            # 获取课程简介
-            item['describe'] = course.css('.course-card-desc::text').extract_first()
-            # 返回信息,如果不传递list，在后续管道中会报错
+
             yield item
 
         #获取下一页的信息，将其加入爬取目标中

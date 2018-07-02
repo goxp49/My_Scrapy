@@ -50,7 +50,7 @@ class FictionItem(scrapy.Item):
     # 小说类型
     type = scrapy.Field()
     # 小说状态
-    static = scrapy.Field()
+    status = scrapy.Field()
     # 总字数
     words = scrapy.Field()
     # 小说链接

@@ -41,3 +41,21 @@ class IPPorxyItem_xici(scrapy.Item):
     ip = scrapy.Field()
     # 类型
     type = scrapy.Field()
+
+class FictionItem(scrapy.Item):
+    # 名称
+    title = scrapy.Field()
+    # 作者
+    author = scrapy.Field()
+    # 小说类型
+    type = scrapy.Field()
+    # 小说状态
+    static = scrapy.Field()
+    # 总字数
+    words = scrapy.Field()
+    # 小说链接
+    fiction_urls = scrapy.Field()
+    # 图片链接
+    image_urls = scrapy.Field()
+    # 图片存储路径
+    image_paths = scrapy.Field()

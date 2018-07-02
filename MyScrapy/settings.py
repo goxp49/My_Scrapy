@@ -60,6 +60,10 @@ DEFAULT_REQUEST_HEADERS = {
     'accept': 'image/webp,*/*;q=0.8',
     'accept-language': 'zh-CN,zh;q=0.8',
     'user-agent': 'Mozilla/5.0 (Windows NT 6.3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36',
+    #----------------起点使用----------------
+    'Host': 'www.qidian.com',
+    'Referer': 'https://www.qidian.com/all'
+    #----------------------------------------
 }
 
 # Enable or disable spider middlewares

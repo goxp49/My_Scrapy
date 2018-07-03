@@ -9,7 +9,8 @@ class QiDianScrapy(scrapy.Spider):
     # 定义爬虫名称
     name = 'QiDianScrapy'
     # 定义开始爬取的网址
-    start_urls = ['https://www.qidian.com/all']
+    start_urls = ['https://www.qidian.com/all?orderId=&style=1&pageSize=20&siteid=1&pubflag=0&hiddenField=0&page=%x'
+                  % x for x in range(1,4)]
     # 设置独立的请求头
     headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
                'Accept-Language': 'zh-CN,zh;q=0.9',
@@ -35,7 +36,7 @@ class QiDianScrapy(scrapy.Spider):
 
     def start_requests(self):
         for url in self.start_urls:
-            yield scrapy.Request(url, headers=self.headers, dont_filter=False)
+            yield scrapy.Request(url, headers=self.headers, dont_filter=True)
 
     def parse(self, response):
         # print(response.url)
@@ -51,7 +52,7 @@ class QiDianScrapy(scrapy.Spider):
                 file.write(download.content)
         # ---------------------------------------------------------------------------------------------------------
         # ---------------------------------将字库转换为XML后获取对应数字-------------------------------------------
-        xml_path = font_path.replace('.ttf','')
+        xml_path = font_path.replace('.ttf','.xml')
         font = TTFont(font_path)    # 打开文件
         font.saveXML(xml_path)     # 转换成 xml 文件并保存
 
@@ -69,6 +70,7 @@ class QiDianScrapy(scrapy.Spider):
         for fiction in response.css('.all-img-list li'):
             # 创建对象
             item = FictionItem()
+            words_temp = ''
             # 获取小说名称
             item['title'] = fiction.css('a[data-eid=qd_B58]::text').extract_first()
             # 获取作者
@@ -77,12 +79,14 @@ class QiDianScrapy(scrapy.Spider):
             item['type'] = fiction.css('a[data-eid=qd_B60]::text').extract_first()
             # 获取小说状态
             item['status'] = fiction.css('.author span::text').extract_first()
-            # 获取小说中字数
+            # 通过查表的方式获取小说中字数（表来源于字体中提取）
             for num in str(fiction.css('.update span::text').extract_first().encode("unicode-escape")).strip(
                     '\'').strip('b\'').split(r'\\'):
-                # print(num[-5:])
-                pass
-            item['words'] = str(fiction.css('.update span::text').extract_first().encode("unicode-escape"))
+                print('当前输出字符：' + num)
+                #确认有内容才取值
+                if num is not "":
+                    words_temp += map_dict.get(num[4:])
+            item['words'] = words_temp + '万字'
             # 获取小说链接
             item['fiction_urls'] = 'http:' + fiction.css('.book-mid-info a::attr(href)').extract_first()
             # 获取图片链接

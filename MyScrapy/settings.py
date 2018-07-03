@@ -60,10 +60,6 @@ DEFAULT_REQUEST_HEADERS = {
     'accept': 'image/webp,*/*;q=0.8',
     'accept-language': 'zh-CN,zh;q=0.8',
     'user-agent': 'Mozilla/5.0 (Windows NT 6.3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36',
-    #----------------起点使用----------------
-    'Host': 'www.qidian.com',
-    'Referer': 'https://www.qidian.com/all'
-    #----------------------------------------
 }
 
 # Enable or disable spider middlewares
@@ -74,13 +70,13 @@ DEFAULT_REQUEST_HEADERS = {
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES = {
+# DOWNLOADER_MIDDLEWARES = {
     #    'myproxies.middlewares.MyCustomDownloaderMiddleware': 543,
-    'scrapy.contrib.downloadermiddleware.httpproxy.HttpProxyMiddleware': None,
-    'MyScrapy.middlewares.ProxyMiddleWare': 125,
-    'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware': None,
-    'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,  #设置不参与scrapy的自动重试的动作
-}
+    # 'scrapy.contrib.downloadermiddleware.httpproxy.HttpProxyMiddleware': None,
+    # 'MyScrapy.middlewares.ProxyMiddleWare': 125,
+    # 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware': None,
+    # 'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,  #设置不参与scrapy的自动重试的动作
+# }
 
 
 # Enable or disable extensions
@@ -92,6 +88,7 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
+    'MyScrapy.FictionSavePipeLines.FictionSavePipeLine': 400,
     #'MyScrapy.IPSavePipeLines.IPSavePipeLine': 400,
     #'MyScrapy.MyPipeLines.MyPipeline': 500,
     #'MyScrapy.ImagesPipeLines.ImagesPipeline': 400,
@@ -121,4 +118,5 @@ ITEM_PIPELINES = {
 IMAGES_URLS_FIELD ="image_url"  #image_url是在items.py中配置的网络爬取得图片地址
 project_dir=os.path.dirname(os.path.dirname(os.path.realpath(__file__)))  # 获取当前爬虫项目的绝对路径
 IMAGES_STORE=os.path.join(project_dir,'images')  #组装新的图片路径
-PorxyFilePath = os.path.join(project_dir, 'proxy_ip.txt')  # 组装新的图片路径
+PorxyFilePath = os.path.join(project_dir, 'proxy_ip.txt')
+FONT_STORE = os.path.join(project_dir,'Fonts')

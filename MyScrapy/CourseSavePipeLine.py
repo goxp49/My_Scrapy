@@ -9,7 +9,7 @@ import json
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-class DataSavePipeLine(object):
+class CourseSavePipeLine(object):
     def __init__(self):
         self.file=open('course_data.json','w',encoding='utf-8')
     def process_item(self, item, spider):

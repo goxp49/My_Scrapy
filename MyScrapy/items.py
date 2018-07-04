@@ -61,3 +61,28 @@ class FictionItem(scrapy.Item):
     image_urls = scrapy.Field()
     # 图片存储路径
     image_paths = scrapy.Field()
+
+
+class DianPingHotelItem(scrapy.Item):
+    # 名称
+    name = scrapy.Field()
+    # 位置
+    place = scrapy.Field()
+    # 起步价钱
+    price = scrapy.Field()
+    # 评分
+    score = scrapy.Field()
+    # 联系方式
+    contact = scrapy.Field()
+    # 酒店网址
+    url = scrapy.Field()
+    # 开业时间
+    destablishment_data = scrapy.Field()
+    # 房型列表
+    room_type_list = scrapy.Field()
+    # 点评数量
+    remark_number = scrapy.Field()
+    # 好评比例（4~5星）
+    good_ratio = scrapy.Field()
+    # 差评比例（1~2星）
+    bad_ratio = scrapy.Field()

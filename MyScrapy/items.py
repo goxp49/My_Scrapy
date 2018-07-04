@@ -53,6 +53,8 @@ class FictionItem(scrapy.Item):
     status = scrapy.Field()
     # 总字数
     words = scrapy.Field()
+    # 评分
+    score = scrapy.Field()
     # 小说链接
     fiction_urls = scrapy.Field()
     # 图片链接

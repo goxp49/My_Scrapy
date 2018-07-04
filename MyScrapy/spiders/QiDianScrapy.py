@@ -1,4 +1,4 @@
-import scrapy, re,os
+import scrapy, re,os,urllib.request
 from ..items import FictionItem
 from ..settings import FONT_STORE
 import requests
@@ -79,14 +79,25 @@ class QiDianScrapy(scrapy.Spider):
             item['type'] = fiction.css('a[data-eid=qd_B60]::text').extract_first()
             # 获取小说状态
             item['status'] = fiction.css('.author span::text').extract_first()
+
             # 通过查表的方式获取小说中字数（表来源于字体中提取）
             for num in str(fiction.css('.update span::text').extract_first().encode("unicode-escape")).strip(
                     '\'').strip('b\'').split(r'\\'):
-                print('当前输出字符：' + num)
                 #确认有内容才取值
                 if num is not "":
                     words_temp += map_dict.get(num[4:])
             item['words'] = words_temp + '万字'
+
+            #获得小说评分(需要通过ajax获取)
+            fiction_id = fiction.css('a::attr(data-bid)').extract_first()
+            url = 'https://book.qidian.com/ajax/comment/index?_csrfToken=1&bookId=%s&pageSize=15' % fiction_id
+            request = urllib.request.Request(url=url)
+            response = urllib.request.urlopen(request)
+            #将字符串转换为dict类型
+            dict_data = eval(str(response.read(), encoding='utf-8'))
+            # print(dict_data['data']['rate'])
+            item['score'] = dict_data['data']['rate']
+
             # 获取小说链接
             item['fiction_urls'] = 'http:' + fiction.css('.book-mid-info a::attr(href)').extract_first()
             # 获取图片链接

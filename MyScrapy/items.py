@@ -66,9 +66,11 @@ class FictionItem(scrapy.Item):
 class DianPingHotelItem(scrapy.Item):
     # 名称
     name = scrapy.Field()
+    # id编码
+    id = scrapy.Field()
     # 位置
     place = scrapy.Field()
-    # 起步价钱
+    # 最低价钱
     price = scrapy.Field()
     # 评分
     score = scrapy.Field()
@@ -84,5 +86,3 @@ class DianPingHotelItem(scrapy.Item):
     remark_number = scrapy.Field()
     # 好评比例（4~5星）
     good_ratio = scrapy.Field()
-    # 差评比例（1~2星）
-    bad_ratio = scrapy.Field()

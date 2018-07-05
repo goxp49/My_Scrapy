@@ -1,3 +1,12 @@
+'''
+    用于从指定的网址中获取代理IP地址
+
+    获取数据格式为'https://139.129.99.9:3128'
+
+    数据存放在proxy_ip.txt文件中
+
+'''
+
 import urllib.request
 import urllib
 import re
@@ -6,6 +15,7 @@ import threading
 import os
 from scrapy import cmdline
 from MyScrapy.settings import PorxyFilePath
+
 
 # 新建一个模拟浏览器的请求头
 headers = {

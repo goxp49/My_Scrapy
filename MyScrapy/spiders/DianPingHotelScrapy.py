@@ -8,7 +8,7 @@ class DianPingHotelScrapy(scrapy.Spider):
     #定义爬虫名称
     name = 'DianPingHotelScrapy'
     #定义爬取多少页（最大50页）
-    max_page = 50
+    max_page = 5
     #定义开始爬取的网址
     start_urls= ['http://www.dianping.com/fuzhou/hotel/p%d' % x for x in range(1,max_page)]
 
@@ -22,6 +22,9 @@ class DianPingHotelScrapy(scrapy.Spider):
                'Host': 'www.dianping.com',
                }
 
+    NOW_TIME = datetime.datetime.now().strftime('%Y-%m-%d')
+    NEXT_DAY_TIME = (datetime.datetime.now() + Day()).strftime('%Y-%m-%d')
+
     def start_requests(self):
         for url in self.start_urls:
             yield scrapy.Request(url=url,headers=self.headers, callback=self.parse_list,dont_filter=False)
@@ -34,8 +37,8 @@ class DianPingHotelScrapy(scrapy.Spider):
             item['name'] = hotel.css('.hotel-name-link::text').extract_first()
             #获取酒店id
             item['id'] = hotel.css('li::attr(data-poi)').extract_first()
-            #获取酒店房间最低价格
-            item['price'] = hotel.css('.price strong::text').extract_first()
+            #获取酒店房间最低价格(网址会在显示后通过JS获取最新数据，所以直接抓取会得到错误的价格)
+            item['price'] = GetHotelDetailInformation(item['id'],self.NOW_TIME ,self.NEXT_DAY_TIME)[0]['price']
             #获取酒店网址，以便下一步爬取
             item['url'] ='http://www.dianping.com/shop/' + item['id']
             #爬取酒店的详细信息
@@ -53,7 +56,8 @@ class DianPingHotelScrapy(scrapy.Spider):
         # 获取联系方式
         item['contact'] = response.css('.info-value::text').extract_first()
         # 获取开业时间
-        item['destablishment_data'] = response.css('.info-value::text').extract()[1]
+        item['destablishment_data'] = response.xpath('//ul[@class="list-info"]/li/div[@class="info-value"]/text()').extract()[1]
+        print(response.xpath('//ul[@class="list-info"]/li/div[@class="info-value"]/text()').extract()[1])
         # 获取点评数量,[1:-1]用于去除两端的括号
         item['remark_number'] = response.css('#comment .count::text').extract_first()[1:-1]
         # 获取好评比例,先判断总数是否为0

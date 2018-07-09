@@ -11,7 +11,8 @@ chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\App
 # 打开请求的url
 driver=webdriver.Chrome(chrome_options=chrome_options)
 driver.get('http://hotels.ctrip.com/hotel/436755.html')
-#time.sleep(5)
 # 获取网页渲染后的源代码
+price = driver.find_element_by_xpath('//*[@id="J_RoomListTbl"]/tbody/tr[3]/td[8]/div/span')
+print(price.text)
 print(driver.page_source)
 driver.close() #切记关闭浏览器，回收资源

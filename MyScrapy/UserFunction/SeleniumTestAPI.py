@@ -17,52 +17,62 @@ headers = {
     'Origin': 'http://www.ctrip.com'
 }
 
-def GetCtripHotelIformation(url):
+def GetCtripHotelIformation(urls):
     #获取配置参数，可进行修改
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--disable-gpu') #谷歌文档提到需要加上这个属性来规避bug
     chrome_options.add_argument('--hide-scrollbars') #隐藏滚动条, 应对一些特殊页面
     chrome_options.add_argument('blink-settings=imagesEnabled=false') #不加载图片, 提升速度
-    chrome_options.add_argument('--headless') #浏览器不提供可视化页面. linux下如果系统不支持可视化不加这条会启动失败
+    # chrome_options.add_argument('--headless') #浏览器不提供可视化页面. linux下如果系统不支持可视化不加这条会启动失败
     chrome_options.add_argument("--disable-plugins-discovery")
     chrome_options.add_argument('user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"')
     chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
     # 打开请求的url
-    driver=webdriver.Chrome(chrome_options=chrome_options)
-    driver.implicitly_wait(10)  #隐性等待10s，加载完成后即刻解除等待
-    driver.delete_all_cookies() #清除所有Cookies
+    browser=webdriver.Chrome(chrome_options=chrome_options)
+    #browser.implicitly_wait(10)  #隐性等待10s，加载完成后即刻解除等待
+    browser.delete_all_cookies() #清除所有Cookies
     #driver.get('http://hotels.ctrip.com/hotel/8020262.html')
-    driver.get(url)
 
-    # 获取房型列表
-    room_data = driver.find_elements_by_class_name('child_name')[1:]
-    # 获取房型是否还可以预定
-    available_data = driver.find_elements_by_class_name('btns_base22_main')[1:]
+    # 在不同窗口中打开不同url
+    for x in range(len(urls)):
+        browser.get(urls[x])
+        browser.execute_script('window.open()')
+        browser._switch_to.window(browser.window_handles[x+1])
+        time.sleep(0.1)
 
-    #print(driver.page_source)
-    room_list = []
-    for x in range(len(room_data)):
-        dict_temp = {}
-        price = room_data[x].get_attribute('data-price')
-        bed_type = bed_list[int(room_data[x].get_attribute('data-bed'))]
-        network_support = network_list[int(room_data[x].get_attribute('data-network'))] if room_data[x].get_attribute('data-network') \
-            else network_list[0]
-        policy = '不可取消' if room_data[x].get_attribute('data-policy') == '3' else '免费取消'
-        available = True if '预订' in available_data[x].text else False
-        if available:
-            dict_temp['bed_type'] = bed_type
-            dict_temp['policy'] = policy
-            dict_temp['price'] = price
-            dict_temp['network_support'] = network_support
-            room_list.append(dict_temp)
-        # print('xxxxx'+available_data[x].text)
-        # print(price)
-        # print(bed_type)
-        # print(network_support)
-        # print(policy)
-        # print(available)
-    print(room_list)
-    driver.close() #切记关闭浏览器，回收资源
+    # 获取各个窗口中的信息
+    for x in range(len(urls)):
+        #先切换回对应窗口
+        browser._switch_to.window(browser.window_handles[x])
+        # 获取房型列表
+        room_data = browser.find_elements_by_class_name('child_name')[1:]
+        # 获取房型是否还可以预定
+        available_data = browser.find_elements_by_class_name('btns_base22_main')[1:]
+
+        #print(driver.page_source)
+        room_list = []
+        for x in range(len(room_data)):
+            dict_temp = {}
+            price = room_data[x].get_attribute('data-price')
+            bed_type = bed_list[int(room_data[x].get_attribute('data-bed'))]
+            network_support = network_list[int(room_data[x].get_attribute('data-network'))] if room_data[x].get_attribute('data-network') \
+                else network_list[0]
+            policy = '不可取消' if room_data[x].get_attribute('data-policy') == '3' else '免费取消'
+            available = True if '预订' in available_data[x].text else False
+            if available:
+                dict_temp['bed_type'] = bed_type
+                dict_temp['policy'] = policy
+                dict_temp['price'] = price
+                dict_temp['network_support'] = network_support
+                room_list.append(dict_temp)
+            # print('xxxxx'+available_data[x].text)
+            # print(price)
+            # print(bed_type)
+            # print(network_support)
+            # print(policy)
+            # print(available)
+        print(room_list if room_list != [] else '房间已售罄')
+    browser.quit() #切记关闭浏览器，回收资源
 
 def SearchHotelUrl(keywork):
     url = 'http://m.ctrip.com/restapi/h5api/searchapp/search'
@@ -98,4 +108,6 @@ def SearchHotelUrl(keywork):
     return url_list
 
 if __name__ == '__main__':
-    SearchHotelUrl('璞宿酒店')
+    #SearchHotelUrl('璞宿酒店')
+    #GetCtripHotelIformation(['http://hotels.ctrip.com/hotel/3680675.html', 'http://hotels.ctrip.com/hotel/8020262.html'])
+    GetCtripHotelIformation(SearchHotelUrl('璞宿酒店'))

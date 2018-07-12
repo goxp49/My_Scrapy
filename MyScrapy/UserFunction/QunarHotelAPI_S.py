@@ -28,15 +28,15 @@ headers = {
     'Host': 'hotel.qunar.com',
 }
 def GetCtripHotelUrl(keyword):
-    url = 'http://hotel.qunar.com/city/shanghai_city/q-%E4%B8%BD%E6%80%9D%E5%8D%A1%E5%B0%94%E9%A1%BF'
+    url = 'http://hotel.qunar.com/city/shanghai_city/q-随意'
     #获取配置参数，可进行修改
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--disable-gpu') #谷歌文档提到需要加上这个属性来规避bug
     chrome_options.add_argument('--headless') #浏览器不提供可视化页面. linux下如果系统不支持可视化不加这条会启动失败
     chrome_options.add_argument("--disable-plugins-discovery")
     chrome_options.add_argument('user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"')
-    #chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
-    chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
+    chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
+    # chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
     prefs = {"profile.managed_default_content_settings.images": 2}  # 不加载图片
     chrome_options.add_experimental_option('prefs', prefs)
     # 打开请求的url
@@ -68,11 +68,17 @@ def GetQunarHotelIformation(browser,urls):
         # 先切换回对应窗口
         browser._switch_to.window(browser.window_handles[x])
         #每个网页有5s时间加载，如果加载失败则跳过
+        # 获取酒店名
+        try:
+            totel_name = browser.find_element_by_xpath('//*[@id="detail_pageHeader"]/h2/span').text
+            totel_type = '酒店'
+        except:
+            totel_name = browser.find_element_by_xpath('//*[@id="bnb_detail_pageHeader"]/div[1]/h2/span').text
+            totel_type = '民宿'
+
         try:
             wait = WebDriverWait(browser, 3)
             wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'room-item-inner')))
-            # 获取酒店名
-            totel_name = browser.find_element_by_xpath('//*[@id="detail_pageHeader"]/h2/span').text
             print(totel_name + '有以下房型：')
             # 获取大房型列表,第二个为团购，忽略
             room_types = browser.find_element_by_class_name('m-room-tools-bd').find_elements_by_class_name('room-item-inner')
@@ -83,11 +89,13 @@ def GetQunarHotelIformation(browser,urls):
                     room_cancel = room.find_element_by_class_name('js-cancel').text
                     room_price = room.find_element_by_class_name('origin-price').find_element_by_class_name('sprice')\
                         .get_attribute('textContent').strip()
+                    available = True if room.find_element_by_class_name('btn-book').text == '预 订' else False
                     print(room_name)
                     print(room_cancel)
                     print(room_price)
+                    print(available)
         except:
-            print('该酒店无可订房间')
+            print(totel_name+':无可订房间!')
             continue
 
     browser.quit()  # 切记关闭浏览器，回收资源

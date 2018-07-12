@@ -79,4 +79,4 @@ if __name__ == '__main__':
     now_time = datetime.datetime.now().strftime('%Y-%m-%d')
     next_day_time = (datetime.datetime.now() + Day()).strftime('%Y-%m-%d')
     print(GetHotelDetailInformation('2190139',now_time ,next_day_time))
-    print(type(GetHotelDetailInformation('2190139','2018-07-5','2018-07-6')))
+    #print(type(GetHotelDetailInformation('2190139','2018-07-5','2018-07-6')))

@@ -99,4 +99,4 @@ if __name__ == '__main__':
         2.开启爬取
     '''
     getipporxy(["http://www.xicidaili.com/nn/"])
-    cmdline.execute("scrapy crawl IPScrapy_kuaidaili".split())
+    #cmdline.execute("scrapy crawl IPScrapy_kuaidaili".split())

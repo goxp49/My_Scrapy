@@ -1,5 +1,14 @@
+'''
+    通过selenium获取携程的酒店信息
+
+    SearchCtripHotelUrl(keywork) ：通过关键字获取相关酒店的URL
+
+    GetCtripHotelIformation(urls)：根据URL获取对应酒店的详细房间信息
+'''
+
+
+
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 import urllib.request,urllib.parse
 from io import BytesIO
 import json,time,gzip,datetime,threading
@@ -21,16 +30,17 @@ def GetCtripHotelIformation(urls):
     #获取配置参数，可进行修改
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--disable-gpu') #谷歌文档提到需要加上这个属性来规避bug
-    chrome_options.add_argument('--hide-scrollbars') #隐藏滚动条, 应对一些特殊页面
-    chrome_options.add_argument('blink-settings=imagesEnabled=false') #不加载图片, 提升速度
-    # chrome_options.add_argument('--headless') #浏览器不提供可视化页面. linux下如果系统不支持可视化不加这条会启动失败
+    #chrome_options.add_argument('--headless') #浏览器不提供可视化页面. linux下如果系统不支持可视化不加这条会启动失败
     chrome_options.add_argument("--disable-plugins-discovery")
     chrome_options.add_argument('user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"')
-    chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
+    #chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
+    chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
+    prefs = {"profile.managed_default_content_settings.images": 2}  # 不加载图片
+    chrome_options.add_experimental_option('prefs', prefs)
     # 打开请求的url
     browser=webdriver.Chrome(chrome_options=chrome_options)
-    #browser.implicitly_wait(10)  #隐性等待10s，加载完成后即刻解除等待
-    browser.delete_all_cookies() #清除所有Cookies
+    browser.implicitly_wait(3)  #隐性等待10s，加载完成后即刻解除等待
+    #browser.delete_all_cookies() #清除所有Cookies
     #driver.get('http://hotels.ctrip.com/hotel/8020262.html')
 
     # 在不同窗口中打开不同url
@@ -38,7 +48,6 @@ def GetCtripHotelIformation(urls):
         browser.get(urls[x])
         browser.execute_script('window.open()')
         browser._switch_to.window(browser.window_handles[x+1])
-        time.sleep(0.1)
 
     # 获取各个窗口中的信息
     for x in range(len(urls)):
@@ -74,7 +83,7 @@ def GetCtripHotelIformation(urls):
         print(room_list if room_list != [] else '房间已售罄')
     browser.quit() #切记关闭浏览器，回收资源
 
-def SearchHotelUrl(keywork):
+def SearchCtripHotelUrl(keywork):
     url = 'http://m.ctrip.com/restapi/h5api/searchapp/search'
 
     data = {
@@ -110,4 +119,4 @@ def SearchHotelUrl(keywork):
 if __name__ == '__main__':
     #SearchHotelUrl('璞宿酒店')
     #GetCtripHotelIformation(['http://hotels.ctrip.com/hotel/3680675.html', 'http://hotels.ctrip.com/hotel/8020262.html'])
-    GetCtripHotelIformation(SearchHotelUrl('璞宿酒店'))
+    GetCtripHotelIformation(SearchCtripHotelUrl('璞宿酒店'))

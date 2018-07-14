@@ -1,9 +1,9 @@
 '''
-    通过selenium获取携程的酒店信息，并找出最低价
+    通过selenium获取去哪儿网的酒店信息，并找出最低价
 
-    SearchCtripHotelUrl(keywork) ：通过关键字获取相关酒店的URL
+    GetQunarHotelLowestPrice(city,keyword) ：通过关键字获取相关酒店的最低房价
 
-    GetCtripHotelIformation(urls)：根据URL获取对应酒店的详细房间信息
+    GetQunarHotelIformation(urls)：根据URL获取对应酒店的详细房间信息
 '''
 
 from selenium import webdriver
@@ -35,11 +35,11 @@ api_headers = {
     'Host': 'hs.qunar.com',
 }
 
-def GetCtripHotelLowestPrice(city,keyword):
+def GetQunarHotelLowestPrice(city,keyword):
     # 获得对应城市的index，用于组成请求的url
     city_index = GetCityIndex(city)
     if not city_index:
-        raise RuntimeError('没有找到对应城市的索引')
+        raise RuntimeError('没有找到(去哪儿网)对应城市的索引')
     print(city_index)
     url = 'http://hotel.qunar.com/city/%s/q-%s' % (city_index,keyword)
     # 获取配置参数，可进行修改
@@ -189,4 +189,4 @@ def isElementExsitByXpath(browser, xpath):
 
 if __name__ == '__main__':
     #GetCtripHotelUrl('锦江都城酒店')  # 富豪/随意/丽思卡尔顿
-    GetCtripHotelLowestPrice('上海', '如家')
+    GetQunarHotelLowestPrice('上海', '如家')

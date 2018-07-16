@@ -50,9 +50,9 @@ def GetCtripHotelIformation(urls):
         browser._switch_to.window(browser.window_handles[x + 1])
 
     # 获取各个窗口中的信息
-    for x in range(len(urls)):
+    for index_url in range(len(urls)):
         # 先切换回对应窗口
-        browser._switch_to.window(browser.window_handles[x])
+        browser._switch_to.window(browser.window_handles[index_url])
         # 获取酒店名称
         name = browser.find_element_by_class_name('cn_n').text
         # 获取房型列表
@@ -77,7 +77,7 @@ def GetCtripHotelIformation(urls):
                 dict_temp['name'] = name
                 dict_temp['bed_type'] = bed_type
                 dict_temp['price'] = price
-                dict_temp['url'] = urls[x]
+                dict_temp['url'] = urls[index_url]
                 room_list.append(dict_temp)
             # print('xxxxx'+available_data[x].text)
             # print(price)

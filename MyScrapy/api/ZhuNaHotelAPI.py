@@ -105,12 +105,13 @@ def GetHotelInformationAPI(id_name_dict, star_time, end_time):
         #temp_dict['available'] = False if hotel['max_price'] == 0 else True
         if hotel['max_price'] != 0:
             temp_dict['name'] = id_name_dict[str(hotel['zid'])]
-            temp_dict['min_price'] = hotel['rooms'][0]['plans'][0]['AverageRate']
+            temp_dict['price'] = hotel['rooms'][0]['plans'][0]['AverageRate']
             temp_dict['bed_type'] = hotel['rooms'][0]['bed']
+            temp_dict['url'] = 'http://www.zhuna.cn/hotel-%s.html' % hotel['zid']
             result_list.append(temp_dict)
-            print(temp_dict['name'])
-            print(temp_dict['min_price'])
-            print(temp_dict['bed_type'])
+            # print(temp_dict['name'])
+            # print(temp_dict['min_price'])
+            # print(temp_dict['bed_type'])
     # 返回搜索结果
     return result_list
 
@@ -146,18 +147,19 @@ def GetHotelIdName(city,keyword):
 
 # 获取对应酒店最低价格
 # 流程：获取城市对应索引 --> 获取目标酒店ID --> 获取目标酒店价格
-def GetZhuNaHotelLowestPrice(city,keyword):
-    now_time = datetime.datetime.now().strftime('%Y-%m-%d')
-    next_day_time = (datetime.datetime.now() + Day()).strftime('%Y-%m-%d')
+def GetZhuNaHotelLowestPrice(city, keyword, start_time, end_time):
     id_name_dict = GetHotelIdName(city, keyword)
     # 确认搜索结果不为空
     if id_name_dict:
-        GetHotelInformationAPI(id_name_dict, now_time, next_day_time)
+        print(GetHotelInformationAPI(id_name_dict, start_time, end_time))
     else:
-        print('目标酒店不存在！')
+        print('<住哪网>中目标酒店不存在！')
+        raise RuntimeError('<住哪网>中目标酒店不存在！')
 
 
 if __name__ == '__main__':
+    start_time = datetime.datetime.now().strftime('%Y-%m-%d')
+    end_time = (datetime.datetime.now() + Day()).strftime('%Y-%m-%d')
     #GetHotelInformationAPI('11304,14764')
-    GetZhuNaHotelLowestPrice('上海', '')
+    GetZhuNaHotelLowestPrice('上海', '新锦江大酒店', start_time, end_time)
     #GetHotelId('上海', '上海新锦江大酒店')

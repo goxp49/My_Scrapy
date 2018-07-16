@@ -14,6 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import operator  # 导入运算符模块
+from pandas.tseries.offsets import Day
 
 bed_list = ['', '大床', '双床', '', '多床']
 network_list = ['没有网络', '提供WIFI', '有线网络']
@@ -35,17 +36,17 @@ api_headers = {
     'Host': 'hs.qunar.com',
 }
 
-def GetQunarHotelLowestPrice(city,keyword):
+def GetQunarHotelLowestPrice(city, keyword, start_time, end_time):
     # 获得对应城市的index，用于组成请求的url
     city_index = GetCityIndex(city)
     if not city_index:
         raise RuntimeError('没有找到(去哪儿网)对应城市的索引')
     print(city_index)
-    url = 'http://hotel.qunar.com/city/%s/q-%s' % (city_index,keyword)
+    url = 'http://hotel.qunar.com/city/%s/q-%s#fromDate=%s&toDate=%s' % (city_index, keyword, start_time, end_time)
     # 获取配置参数，可进行修改
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--disable-gpu')  # 谷歌文档提到需要加上这个属性来规避bug
-    #chrome_options.add_argument('--headless')  # 浏览器不提供可视化页面. linux下如果系统不支持可视化不加这条会启动失败
+    chrome_options.add_argument('--headless')  # 浏览器不提供可视化页面. linux下如果系统不支持可视化不加这条会启动失败
     chrome_options.add_argument("--disable-plugins-discovery")
     chrome_options.add_argument(
         'user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"')
@@ -63,8 +64,10 @@ def GetQunarHotelLowestPrice(city,keyword):
     for room in room_list:
         name = room.get_attribute('title')
         url = room.get_attribute('href')
-        urls.append(url)
-        print(name + ':' + url)
+        # 只保留含有关键字的目标
+        if name == keyword:
+            urls.append(url)
+            print(name + ':' + url)
     GetQunarHotelIformation(browser, urls)
 
 
@@ -109,6 +112,8 @@ def GetQunarHotelIformation(browser, urls):
         # 获取每个酒店的小房型信息
         for room_type in room_types:
             for room in room_type.find_elements_by_class_name('tbl-tbd'):
+                # 获取酒店名
+                hotel_name = browser.find_element_by_id('detail_pageHeader').find_element_by_css_selector('span').text
                 # 遇到团购房型时房间名位置有变化，class=js-tuan-title/js-product，所以需要进行判断
                 room_name = room.find_element_by_class_name('js-product').text if isElementExsitByClass(room,
                                                                                                         'js-product') else \
@@ -129,14 +134,16 @@ def GetQunarHotelIformation(browser, urls):
                 if available and operator.le(room_price, min_price):
                     # print('发现更低价格：' + str(room_price))
                     min_price = room_price
-                    temp_dict['room_name'] = room_name
-                    temp_dict['room_price'] = room_price
-                    temp_dict['room_cancel'] = room_cancel
+                    temp_dict['name'] = hotel_name
+                    temp_dict['bed_type'] = room_name
+                    temp_dict['price'] = room_price
+                    temp_dict['url'] = urls[x]
 
         if temp_dict:
-            print(temp_dict['room_name'])
-            print(temp_dict['room_price'])
-            print(temp_dict['room_cancel'])
+            print(temp_dict['name'])
+            print(temp_dict['bed_type'])
+            print(temp_dict['price'])
+            print(temp_dict['url'])
         else:
             print('房间已无剩余！')
     browser.quit()  # 切记关闭浏览器，回收资源
@@ -188,5 +195,7 @@ def isElementExsitByXpath(browser, xpath):
 
 
 if __name__ == '__main__':
+    start_time = datetime.datetime.now().strftime('%Y-%m-%d')
+    end_time = (datetime.datetime.now() + Day()).strftime('%Y-%m-%d')
     #GetCtripHotelUrl('锦江都城酒店')  # 富豪/随意/丽思卡尔顿
-    GetQunarHotelLowestPrice('上海', '如家')
+    GetQunarHotelLowestPrice('上海', '上海贝尔特酒店', start_time, end_time)

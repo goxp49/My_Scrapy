@@ -5,4 +5,5 @@
 
     输出：酒店名(name)、房型(bed_type)、最低价(price)、URL(url)，数据格式：LIST[DICT1、DICT2…………]
 
+    备注：当没找到合适的房间时返回None
 '''

@@ -24,7 +24,14 @@ headers = {
     'Origin': 'http://www.ctrip.com'
 }
 
-
+index_headers = {
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'zh-CN,zh;q=0.9',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
+    'Host': 'hotels.ctrip.com',
+}
+# 通过selenium的方式获取酒店价格（速度慢）
 def GetCtripHotelIformation(urls):
     # 获取配置参数，可进行修改
     chrome_options = webdriver.ChromeOptions()
@@ -33,8 +40,8 @@ def GetCtripHotelIformation(urls):
     chrome_options.add_argument("--disable-plugins-discovery")
     chrome_options.add_argument(
         'user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"')
-    # chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
-    chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\Application\chrome.exe"  # 手动指定使用的浏览器位置
+    chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe"  # 手动指定使用的浏览器位置
+    # chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\Application\chrome.exe"  # 手动指定使用的浏览器位置
     prefs = {"profile.managed_default_content_settings.images": 2}  # 不加载图片
     chrome_options.add_experimental_option('prefs', prefs)
     # 打开请求的url
@@ -48,7 +55,8 @@ def GetCtripHotelIformation(urls):
         browser.get(urls[x])
         browser.execute_script('window.open()')
         browser._switch_to.window(browser.window_handles[x + 1])
-
+    # 建立变量保存返回结果
+    result_list = []
     # 获取各个窗口中的信息
     for index_url in range(len(urls)):
         # 先切换回对应窗口
@@ -61,7 +69,7 @@ def GetCtripHotelIformation(urls):
         available_data = browser.find_elements_by_class_name('btns_base22_main')[1:]
 
         # print(driver.page_source)
-        room_list = []
+
         min_price = 99999  # 初始化最低价格
         for x in range(len(room_data)):
             dict_temp = {}
@@ -78,17 +86,21 @@ def GetCtripHotelIformation(urls):
                 dict_temp['bed_type'] = bed_type
                 dict_temp['price'] = price
                 dict_temp['url'] = urls[index_url]
-                room_list.append(dict_temp)
             # print('xxxxx'+available_data[x].text)
             # print(price)
             # print(bed_type)
             # print(network_support)
             # print(policy)
             # print(available)
-        print(room_list if room_list != [] else '房间已售罄')
+        # 如果结果不为空则加入到返回结果中
+        if dict_temp:
+            result_list.append(dict_temp)
+    print(result_list if result_list != [] else '房间已售罄')
+    return result_list if result_list else None
     browser.quit()  # 切记关闭浏览器，回收资源
 
 
+'''
 def SearchCtripHotelUrl(keywork):
     url = 'http://m.ctrip.com/restapi/h5api/searchapp/search'
 
@@ -121,9 +133,40 @@ def SearchCtripHotelUrl(keywork):
             url_list.append(result['url'])
     print('目标URL列表为：' + str(url_list))
     return url_list
+'''
+
+# 通过API获取指定对应城市的索引
+def GetCityIndex(city):
+
+    url = 'http://hotels.ctrip.com/Domestic/Tool/AjaxDestination.aspx'
+    # 设置请求内容
+    data = {
+        'keyword': city,
+    }
+    data_bytes = urllib.parse.urlencode(data)
+    new_url = url + "?" + data_bytes  # URL拼接
+    print(new_url)
+    request = urllib.request.Request(url=new_url, headers=index_headers)
+    response = urllib.request.urlopen(request)
+    content = response.read()  # content是压缩过的数据
+    buff = BytesIO(content)  # 把content转为文件对象
+    f = gzip.GzipFile(fileobj=buff)
+    # 获得原始结果'cQuery.jsonpResponse={"key":"北京","data":"@Beijing|北京|1|15660|北京||Cit………………'
+    original_str = f.read().decode('utf-8')
+    print(original_str.split('=')[1].split('@')[1].split('|'))
+    process_str = original_str.split('=')[1].split('@')[1].split('|')
+    # ['Beijing', '北京', '1', '15660', '北京', '', 'City', '北京', '1', '1', '1', '', '', '', '1']
+    # 返回结果,检查结果是否包含城市名称,不包含则返回None
+    return process_str[0] + process_str[2] if city in process_str[1] else None
+
+# 获取对应酒店最低价格
+# 流程：获取城市对应索引 --> 获取目标酒店ID --> 获取目标酒店价格
+def GetCtripHotelLowestPrice(city, keyword, start_time, end_time):
+    pass
 
 
 if __name__ == '__main__':
     # SearchHotelUrl('璞宿酒店')
     # GetCtripHotelIformation(['http://hotels.ctrip.com/hotel/3680675.html', 'http://hotels.ctrip.com/hotel/8020262.html'])
-    GetCtripHotelIformation(SearchCtripHotelUrl('璞宿酒店'))
+    #GetCtripHotelIformation(SearchCtripHotelUrl('璞宿酒店'))
+    print(GetCityIndex('尼玛'))

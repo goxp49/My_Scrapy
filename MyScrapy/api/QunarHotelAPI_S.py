@@ -50,8 +50,8 @@ def GetQunarHotelLowestPrice(city, keyword, start_time, end_time):
     chrome_options.add_argument("--disable-plugins-discovery")
     chrome_options.add_argument(
         'user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"')
-    # chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
-    chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\Application\chrome.exe"  # 手动指定使用的浏览器位置
+    chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
+    #chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\Application\chrome.exe"  # 手动指定使用的浏览器位置
     prefs = {"profile.managed_default_content_settings.images": 2}  # 不加载图片
     chrome_options.add_experimental_option('prefs', prefs)
     # 打开请求的url

@@ -23,3 +23,6 @@
     （1）通过‘element.attribute('innerHTML ')’，可以获取内部HTML代码，如‘<div>Hello <p>World!</p></div>’；
     （2）通过‘element.attribute('textContent ')，可以获取文本内容，如‘Hello World!’；
     参考地址：https://www.cnblogs.com/ppppying/p/7755064.html
+
+6.使用字符串格式化时报错'not enough arguments for format string'
+    在字符串中如果包含有'%'符号，要用'%%'来代替。

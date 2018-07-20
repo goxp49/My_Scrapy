@@ -9,7 +9,9 @@
 from selenium import webdriver
 import urllib.request, urllib.parse
 from io import BytesIO
-import json, time, gzip, datetime, threading
+import json, time, gzip, pinyin, string
+from urllib.parse import quote
+from bs4 import BeautifulSoup
 
 bed_list = ['', '大床', '双床', '', '多床']
 network_list = ['没有网络', '提供WIFI', '有线网络']
@@ -193,30 +195,63 @@ def GetCityIndex(city):
 # 通过城市索引获取酒店搜索结果
 # 携程会依据Cookie来显示不同的价格（险恶），没有Cookie时会更便宜~
 
-def GetHotelList(city_index, city_py, hotel):
+def GetHotelList(city_index, city_py, hotel_name, start_time, end_time):
     new_index = city_py + city_index
-    new_url = 'http://hotels.ctrip.com/hotel/%s/k1%%E5%%A6%%82%%E5%%AE%%B6#ctm_ref=hod_hp_sb_lst' % new_index
-    # url = 'http://hotels.ctrip.com/hotel/%s/k1%s' % (city_index, city)
-    # 转换含中文的url地址
+    url = 'http://hotels.ctrip.com/hotel/%s/k1%s#ctm_ref=ctr_hp_sb_lst' % (new_index, hotel_name)
+    new_url = quote(url, safe=string.printable)
     #new_url = urllib.parse.quote(url)
     # 设置请求内容
     data = {
-        'checkIn': '2018-7-19',
-        'checkOut': '2018-07-25',
+        'checkIn': start_time,  #'2018-7-19',
+        'checkOut': end_time,   #'2018-07-25',
         'RoomGuestCount': '1,1,0',
         'Star': 0,
     }
 
     data_bytes = bytes(urllib.parse.urlencode(data), encoding='utf8')
-    #print(new_url)
+    print(new_url)
     request = urllib.request.Request(url=new_url, data=data_bytes, headers=list_headers)
     response = urllib.request.urlopen(request)
     content = response.read()  # content是压缩过的数据
     buff = BytesIO(content)  # 把content转为文件对象
-    f = gzip.GzipFile(fileobj=buff)
-    # 获得原始结果'cQuery.jsonpResponse={"key":"北京","data":"@Beijing|北京|1|15660|北京||Cit………………'
-    print(f.read().decode('utf-8'))
+    file = gzip.GzipFile(fileobj=buff).read().decode('utf-8')
+    soup = BeautifulSoup(file, 'lxml')
+    hotel_soups = soup.find_all('div', 'hotel_new_list')
+    # print(hotel_soups)
+    result_list = []
+    for hotel in hotel_soups:
+        dict_temp = {}
+        if hotel.find('span','J_price_lowList'):
+            dict_temp['name'] = hotel.select_one('.hotel_name a').get('title')
+            dict_temp['bed_type'] = '未知' # 暂时不需要实现，还需进一步爬取
+            dict_temp['price'] = hotel.select_one('.J_price_lowList').string
+            dict_temp['url'] = 'http://hotels.ctrip.com' + hotel.select_one('.hotel_name a').get('href')
+            result_list.append(dict_temp)
+        # print(dict_temp['name'])
+        # print(dict_temp['price'])
+        # print(dict_temp['url'])
+    print(result_list)
 
+
+
+# 将中文转换为拼音
+def ConvertToPinYin(string):
+    """
+        汉字[钓鱼岛是中国的]=>拼音[diaoyudaoshizhongguode]\n
+        汉字[我是shui]=>拼音[woshishui]\n
+        汉字[AreYou好]=>拼音[AreYouhao]\n
+        汉字[None]=>拼音[]\n
+        汉字[]=>拼音[]\n
+        :param string:  str 类型的字符串
+        :return: 汉字转小写拼音
+    """
+    if isinstance(string, str):
+        if string == 'None':
+            return ""
+        else:
+            return pinyin.get(string, format='strip', delimiter="")
+    else:
+        return '类型不对'
 
 
 # 获取对应酒店最低价格
@@ -230,4 +265,4 @@ if __name__ == '__main__':
     # GetCtripHotelIformation(['http://hotels.ctrip.com/hotel/3680675.html', 'http://hotels.ctrip.com/hotel/8020262.html'])
     # GetCtripHotelIformation(SearchCtripHotelUrl('璞宿酒店'))
     #print(GetCityIndex('尼玛'))
-    GetHotelList('1', 'beijing', '如家')
+    GetHotelList('1', 'beijing', '如家', '2018-7-20', '2018-7-21')

@@ -26,3 +26,6 @@
 
 6.使用字符串格式化时报错'not enough arguments for format string'
     在字符串中如果包含有'%'符号，要用'%%'来代替。
+
+7.使用urllib.request提交URL中包含中文字符时报错？
+    -->可以使用'new_url = quote(url, safe=string.printable)'来将含中文的字符串进行URL编码。

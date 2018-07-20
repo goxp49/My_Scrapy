@@ -12,9 +12,11 @@
 '''
 
 import urllib.request, urllib.parse
+from urllib.parse import quote
 from io import BytesIO
-import json, time, gzip, datetime
+import json, time, gzip, datetime, string
 from pandas.tseries.offsets import Day
+from MyScrapy.userfaction.PinYinUtil import to_pinyin
 
 headers = {
     'Accept': 'application/json, text/plain, */*',
@@ -24,6 +26,19 @@ headers = {
     'Connection': 'keep-alive',
     'Referer': 'https://www.baidu.com',
     'Host': 'www.dianping.com',
+    'Cookie': '_lxsdk_cuid=1646549e147c8-055f4efef223ce-737356c-144000-1646549e147c8; '
+              '_lxsdk=1646549e147c8-055f4efef223ce-737356c-144000-1646549e147c8; '
+              '_hc.v=ed0f5c81-1a2d-ceca-d718-99e075e10071.1530707698; s_ViewType=10; aburl=1; '
+              '_dp.ac.v=e67bfe64-0ecb-4c7c-827d-3a92bf54bf01; '
+              'dper'
+              '=74bbbe35954443dcae6e88e8cff40dfeb8c6ead906126ca71c0265adbb32142fb2bac49e1cf21e98eb04b8b43c9fca81b73f098d6e1e1d79c04f95da468790ef78bc5167ef73daca9944b471521e82f9969525ac8462ce4bac1462462eba98f2; ua=dpuser_8345204909; '
+              'ctu=dd2891b53f8b5190247c37fa499b58743136a1509698dbcc8d40e3a2672a6356; '
+              'll=7fd06e815b796be3df069dec7836c3df; _tr.u=VK9CHvpX7DIUs6Tr; cy=1; cye=shanghai; '
+              '_lx_utm=utm_source%3Dbaidu%26utm_medium%3Dorganic%26utm_term%3D%25E5%25A4%25A7%25E4%25BC%2597%25E7'
+              '%2582%25B9%25E8%25AF%2584; selectLevel=%7B%7D; '
+              '__mta=243004349.1530707957424.1532087814245.1532087837331.20; '
+              'cityInfo=%7B%22cityId%22%3A1%2C%22cityEnName%22%3A%22shanghai%22%2C%22cityName%22%3A%22%E4%B8%8A%E6%B5'
+              '%B7%22%7D; hotelTime=2018-07-20%7C2018-07-25; _lxsdk_s=164b7bf08e5-531-f45-853%7C%7C17',
 }
 
 
@@ -77,9 +92,22 @@ def GetHotelDetailInformation(shopId, start_date, end_date):
     return json.loads(f.read().decode('utf-8'))['data']['hotelGoodsList']['roomList']
 
 
+# 获得目标酒店的id列表
+def GetTargetHotelIds(city, keywords):
+    city_index = to_pinyin(city)
+    url = 'http://www.dianping.com/%s/hotel/_%s' % (city_index, keywords)
+    new_url = quote(url, safe=string.printable)
+    print(new_url)
+    request = urllib.request.Request(url=new_url, headers=headers)
+    response = urllib.request.urlopen(request)
+    content = response.read()
+    print(content)
+
+
 if __name__ == '__main__':
     # print(GetHotelMinimumPrice('2190139','2018-7-5','2018-7-5')
     now_time = datetime.datetime.now().strftime('%Y-%m-%d')
     next_day_time = (datetime.datetime.now() + Day()).strftime('%Y-%m-%d')
-    print(GetHotelDetailInformation('2190139',now_time ,next_day_time))
+    # print(GetHotelDetailInformation('2190139', now_time, next_day_time))
     # print(type(GetHotelDetailInformation('2190139', now_time, next_day_time)))
+    GetTargetHotelIds('上海', '如家')

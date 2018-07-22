@@ -74,7 +74,7 @@ def GetCityIndex(city):
     }
     data_bytes = urllib.parse.urlencode(data)
     new_url = url + "?" + data_bytes  # URL拼接
-    print(new_url)
+    # print(new_url)
     try:
         request = urllib.request.Request(url=new_url, headers=index_headers)
         response = urllib.request.urlopen(request)
@@ -83,7 +83,7 @@ def GetCityIndex(city):
         f = gzip.GzipFile(fileobj=buff)
         # 获得原始结果'cQuery.jsonpResponse={"key":"北京","data":"@Beijing|北京|1|15660|北京||Cit………………'
         original_str = f.read().decode('utf-8')
-        print(original_str.split('=')[1].split('@')[1].split('|'))
+        # print(original_str.split('=')[1].split('@')[1].split('|'))
         process_str = original_str.split('=')[1].split('@')[1].split('|')
         # ['Beijing', '北京', '1', '15660', '北京', '', 'City', '北京', '1', '1', '1', '', '', '', '1']
         # 返回结果,检查结果是否包含城市名称,不包含则返回None
@@ -95,7 +95,7 @@ def GetCityIndex(city):
 # 通过城市索引获取酒店搜索结果
 # 携程会依据Cookie来显示不同的价格（险恶），没有Cookie时会更便宜~
 
-def GetHotelList(city_index, hotel_name, start_time, end_time):
+def GetHotelPricr(city_index, hotel_name, start_time, end_time):
     url = 'http://hotels.ctrip.com/hotel/%s/k1%s#ctm_ref=ctr_hp_sb_lst' % (city_index, hotel_name)
     new_url = quote(url, safe=string.printable)
     #new_url = urllib.parse.quote(url)
@@ -108,7 +108,7 @@ def GetHotelList(city_index, hotel_name, start_time, end_time):
     }
 
     data_bytes = bytes(urllib.parse.urlencode(data), encoding='utf8')
-    print(new_url)
+    # print(new_url)
     request = urllib.request.Request(url=new_url, data=data_bytes, headers=list_headers)
     response = urllib.request.urlopen(request)
     content = response.read()  # content是压缩过的数据
@@ -117,23 +117,25 @@ def GetHotelList(city_index, hotel_name, start_time, end_time):
     soup = BeautifulSoup(file, 'lxml')
     hotel_soups = soup.find_all('div', 'hotel_new_list')
     # print(hotel_soups)
-    result_list = []
+    result_dict = {}
+    price_min = 99999  # 初始化最低价格
     for hotel in hotel_soups:
         dict_temp = {}
         if hotel.find('span', 'J_price_lowList'):
             dict_temp['name'] = hotel.select_one('.hotel_name a').get('title')
+            dict_temp['price'] = hotel.select_one('.J_price_lowList').string
+            # print(dict_temp['name'])
+            # print(dict_temp['price'])
             # 只有酒店名中包含关键字才会被添加
-            if hotel_name in dict_temp['name']:
-                dict_temp['bed_type'] = '未知'  # 暂时不需要实现，还需进一步爬取
-                dict_temp['price'] = hotel.select_one('.J_price_lowList').string
-                dict_temp['url'] = 'http://hotels.ctrip.com' + hotel.select_one('.hotel_name a').get('href')
-                result_list.append(dict_temp)
-        # print(dict_temp['name'])
-        # print(dict_temp['price'])
-        # print(dict_temp['url'])
+            if hotel_name in dict_temp['name'] and int(dict_temp['price']) <= price_min:
+                price_min = int(dict_temp['price'])
+                result_dict['name']= dict_temp['name']
+                result_dict['bed_type'] = '未知'  # 暂时不需要实现，还需进一步爬取
+                result_dict['price']= dict_temp['price']
+                result_dict['url'] = 'http://hotels.ctrip.com' + hotel.select_one('.hotel_name a').get('href')
     # 返回结果
     #print(result_list)
-    return result_list if result_list else None
+    return result_dict
 
 
 # 获取对应酒店最低价格
@@ -141,12 +143,12 @@ def GetHotelList(city_index, hotel_name, start_time, end_time):
 def GetCtripHotelLowestPrice(city, keyword, start_time, end_time):
     try:
         city_index = GetCityIndex(city)
-        result = GetHotelList(city_index, keyword, start_time, end_time)
-        print(result)
+        result = GetHotelPricr(city_index, keyword, start_time, end_time)
+        print(result if result else '<携程>中目标酒店不存在！')
     except urllib.error.HTTPError:
-        print('没找到')
+        print('<携程>中目标酒店不存在！')
 
 
 
 if __name__ == '__main__':
-    GetCtripHotelLowestPrice('南宁', '如家', '2018-7-20', '2018-7-21')
+    GetCtripHotelLowestPrice('南宁', '如家', '2018-7-22', '2018-7-23')

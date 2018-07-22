@@ -51,7 +51,7 @@ def GetCityIndexAPI(city):
     }
     data_bytes = urllib.parse.urlencode(data)
     new_url = api_url + "?" + data_bytes  # URL拼接
-    print(new_url)
+    # print(new_url)
     request = urllib.request.Request(url=new_url, headers=index_headers)
     response = urllib.request.urlopen(request)
     content = response.read()  # content是压缩过的数据
@@ -60,7 +60,7 @@ def GetCityIndexAPI(city):
     # 获取对应的index
     try:
         result_json = json.loads(f.read().decode('utf-8'))['response']
-        print(result_json)
+        # print(result_json)
         if result_json:
             for result in result_json['docs']:
                 # 由于JSON已经在服务器排序过，所以第一个结果是最优搜索
@@ -88,7 +88,7 @@ def GetHotelInformationAPI(id_name_dict, star_time, end_time):
     }
     data_bytes = urllib.parse.urlencode(data)
     new_url = url + "?" + data_bytes  # URL拼接
-    print(new_url)
+    # print(new_url)
     request = urllib.request.Request(url=new_url, headers=information_headers)
     response = urllib.request.urlopen(request)
     content = response.read()  # content是压缩过的数据
@@ -119,7 +119,7 @@ def GetHotelInformationAPI(id_name_dict, star_time, end_time):
 def GetHotelIdName(city,keyword):
     city_index = GetCityIndexAPI(city)
     if not city_index:
-        raise RuntimeError('没有找到(住哪儿网)对应城市的索引')
+        return None
     # 设定去哪儿城市获取index API地址
     url = 'http://www.zhuna.cn/hotellist/e%s/' % city_index
     # 设置请求内容
@@ -128,7 +128,7 @@ def GetHotelIdName(city,keyword):
     }
     data_bytes = urllib.parse.urlencode(data)
     new_url = url + "?" + data_bytes  # URL拼接
-    print(new_url)
+    # print(new_url)
     request = urllib.request.Request(url=new_url, headers=headers)
     response = urllib.request.urlopen(request)
     content = response.read()  # content是压缩过的数据
@@ -142,7 +142,7 @@ def GetHotelIdName(city,keyword):
         if keyword in id_soup.find('a').string:
             #从结果中提取出id值\对应的酒店名
             result_dict.setdefault(id_soup.attrs['id'].split('_')[1], id_soup.find('a').string)
-    print(result_dict)
+    # print(result_dict)
     return result_dict
 
 # 获取对应酒店最低价格
@@ -151,10 +151,10 @@ def GetZhuNaHotelLowestPrice(city, keyword, start_time, end_time):
     id_name_dict = GetHotelIdName(city, keyword)
     # 确认搜索结果不为空
     if id_name_dict:
+        print('<住哪网>结果：')
         print(GetHotelInformationAPI(id_name_dict, start_time, end_time))
     else:
         print('<住哪网>中目标酒店不存在！')
-        raise RuntimeError('<住哪网>中目标酒店不存在！')
 
 
 if __name__ == '__main__':

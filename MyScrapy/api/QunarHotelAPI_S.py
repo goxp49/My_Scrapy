@@ -40,8 +40,9 @@ def GetQunarHotelLowestPrice(city, keyword, start_time, end_time):
     # 获得对应城市的index，用于组成请求的url
     city_index = GetCityIndex(city)
     if not city_index:
-        raise RuntimeError('没有找到(去哪儿网)对应城市的索引')
-    print(city_index)
+        print('<住哪网>中目标酒店不存在！')
+        return None
+    # print(city_index)
     url = 'http://hotel.qunar.com/city/%s/q-%s#fromDate=%s&toDate=%s' % (city_index, keyword, start_time, end_time)
     # 获取配置参数，可进行修改
     chrome_options = webdriver.ChromeOptions()
@@ -198,4 +199,4 @@ if __name__ == '__main__':
     start_time = datetime.datetime.now().strftime('%Y-%m-%d')
     end_time = (datetime.datetime.now() + Day()).strftime('%Y-%m-%d')
     #GetCtripHotelUrl('锦江都城酒店')  # 富豪/随意/丽思卡尔顿
-    GetQunarHotelLowestPrice('上海', '上海贝尔特酒店', start_time, end_time)
+    GetQunarHotelLowestPrice('上海', 'xxxxxxxxxxxxxx上海贝尔特酒店', start_time, end_time)

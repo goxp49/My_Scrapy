@@ -18,7 +18,7 @@ from MyScrapy.api.CtripHotelAPI import GetCtripHotelLowestPrice
 def GetAllWebsitePirce(city, keyword, start_time, end_time):
     thread_list = []  # 线程存放列表
     thread_list.append(threading.Thread(target=GetZhuNaHotelLowestPrice, args=(city, keyword, start_time, end_time), name='住哪网'))
-    # thread_list.append(threading.Thread(target=GetQunarHotelLowestPrice, args=(city, keyword, start_time, end_time), name='去哪网'))
+    thread_list.append(threading.Thread(target=GetQunarHotelLowestPrice, args=(city, keyword, start_time, end_time), name='去哪网'))
     thread_list.append(threading.Thread(target=GetDianPingLowestPrice, args=(city, keyword, start_time, end_time), name='点评网'))
     thread_list.append(threading.Thread(target=GetCtripHotelLowestPrice, args=(city, keyword, start_time, end_time), name='携程网'))
     for t in thread_list:
@@ -31,4 +31,4 @@ def GetAllWebsitePirce(city, keyword, start_time, end_time):
 
 
 if __name__ == '__main__':
-    GetAllWebsitePirce('南宁', '万豪', '2018-07-23', '2018-07-25')
+    GetAllWebsitePirce('上海', '丽思卡尔顿', '2018-07-23', '2018-07-25')

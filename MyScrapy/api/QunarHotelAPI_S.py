@@ -51,92 +51,70 @@ def GetQunarHotelLowestPrice(city, keyword, start_time, end_time):
     chrome_options.add_argument("--disable-plugins-discovery")
     chrome_options.add_argument(
         'user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"')
-    # chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
-    chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\Application\chrome.exe"  # 手动指定使用的浏览器位置
+    chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
+    # chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\Application\chrome.exe"  # 手动指定使用的浏览器位置
     prefs = {"profile.managed_default_content_settings.images": 2}  # 不加载图片
     chrome_options.add_experimental_option('prefs', prefs)
     # 打开请求的url
     browser = webdriver.Chrome(chrome_options=chrome_options)
-    browser.implicitly_wait(3)  #隐性等待10s，加载完成后即刻解除等待
+    browser.implicitly_wait(2)  #隐性等待10s，加载完成后即刻解除等待
     browser.get(url)
     # 获取相关酒店URL
-    room_list = browser.find_elements_by_class_name('e_title')
-    urls = []
-    for room in room_list:
-        name = room.get_attribute('title')
-        url = room.get_attribute('href')
-        # 只保留含有关键字的目标
-        if keyword in name:
-            urls.append(url)
-            # print(name + ':' + url)
-    print(GetQunarHotelIformation(browser, urls))
+    room = browser.find_element_by_class_name('e_title')
+    name = room.get_attribute('title')
+    url = room.get_attribute('href')
+    # 只保留含有关键字的目标
+    if keyword in name:
+        print(GetQunarHotelIformation(browser, url))
+    else:
+        print('<去哪网>中目标酒店不存在！')
 
 
-def GetQunarHotelIformation(browser, urls):
-    # 在不同窗口中打开不同url
-    error_url = 0
-    # print(urls)
-    for x in range(len(urls)):
-        browser.get(urls[x - error_url])
-        # 每个网页有5s时间加载，如果加载失败则移除该URL，并关闭对应CHROME窗口
-        # try:
-        #     wait = WebDriverWait(browser, 1)
-        #     wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'room-item-inner')))
-        # except:
-        #     browser.execute_script('window.open()')
-        #     browser.close()
-        #     browser._switch_to.window(browser.window_handles[x - error_url])
-        #     error_url += 1
-        #     urls.pop(x)
-        # pass
-        browser.execute_script('window.open()')
-        browser._switch_to.window(browser.window_handles[x + 1 - error_url])
-    # time.sleep(3)
+def GetQunarHotelIformation(browser, url):
     # 建立临时变量存储最低价格的房间信息
     temp_dict = {}
     min_price = 99999  # 初始化最低价格
-    # 获取各个URL中的信息
-    for x in range(len(urls)):
-        # 先切换回对应窗口
-        browser._switch_to.window(browser.window_handles[x])
-        # 获取酒店名
-        totel_name = browser.find_element_by_xpath(
-            '//*[@id="detail_pageHeader"]/h2/span').text if isElementExsitByXpath(browser,
-                                                                                  '//*[@id="detail_pageHeader"]/h2/span') else \
-            browser.find_element_by_xpath('//*[@id="bnb_detail_pageHeader"]/div[1]/h2/span').text
-        # print(totel_name + '价格最低的房型为：')
-        # 获取大房型列表,第二个为团购，忽略
-        room_types = browser.find_element_by_class_name('m-room-tools-bd').find_elements_by_class_name(
-            'room-item-inner')
-        # 获取每个酒店的小房型信息
-        for room_type in room_types:
-            for room in room_type.find_elements_by_class_name('tbl-tbd'):
-                # 获取酒店名
-                hotel_name = browser.find_element_by_id('detail_pageHeader').find_element_by_css_selector('span').text
-                # 遇到团购房型时房间名位置有变化，class=js-tuan-title/js-product，所以需要进行判断
-                room_name = room.find_element_by_class_name('js-product').text if isElementExsitByClass(room,
-                                                                                                        'js-product') else \
-                    room.find_element_by_class_name('js-tuan-title').text
-                # 个别房型没有取消项时class = non_cancel
-                room_cancel = room.find_element_by_class_name('js-cancel').text if isElementExsitByClass(room,
-                                                                                                         'js-cancel') else \
-                    room.find_element_by_class_name('non_cancel').text
-                room_price = int(room.find_element_by_class_name('origin-price').find_element_by_class_name('sprice') \
-                                 .get_attribute('textContent').strip()[1:])
-                available = True if room.find_element_by_class_name(
-                    'btn-book').text != '已订完' else False
-                # print(room_name)
-                # print(room_cancel)
-                # print(room_price)
-                # print(available)
-                # 判断是否为最低价格,如果是，则更新价格
-                if available and operator.le(room_price, min_price):
-                    # print('发现更低价格：' + str(room_price))
-                    min_price = room_price
-                    temp_dict['name'] = hotel_name
-                    temp_dict['bed_type'] = room_name
-                    temp_dict['price'] = room_price
-                    temp_dict['url'] = urls[x]
+    # 打开网页
+    browser.get(url)
+    time.sleep(3)
+    # 获取酒店名
+    totel_name = browser.find_element_by_xpath(
+        '//*[@id="detail_pageHeader"]/h2/span').text if isElementExsitByXpath(browser,
+                                                                              '//*[@id="detail_pageHeader"]/h2/span') else \
+        browser.find_element_by_xpath('//*[@id="bnb_detail_pageHeader"]/div[1]/h2/span').text
+    # print(totel_name + '价格最低的房型为：')
+    # 获取大房型列表,第二个为团购，忽略
+    room_types = browser.find_element_by_class_name('m-room-tools-bd').find_elements_by_class_name(
+        'room-item-inner')
+    # 获取每个酒店的小房型信息
+    for room_type in room_types:
+        for room in room_type.find_elements_by_class_name('tbl-tbd'):
+            # 获取酒店名
+            hotel_name = browser.find_element_by_id('detail_pageHeader').find_element_by_css_selector('span').text
+            # 遇到团购房型时房间名位置有变化，class=js-tuan-title/js-product，所以需要进行判断
+            room_name = room.find_element_by_class_name('js-product').text if isElementExsitByClass(room,
+                                                                                                    'js-product') else \
+                room.find_element_by_class_name('js-tuan-title').text
+            # 个别房型没有取消项时class = non_cancel
+            room_cancel = room.find_element_by_class_name('js-cancel').text if isElementExsitByClass(room,
+                                                                                                     'js-cancel') else \
+                room.find_element_by_class_name('non_cancel').text
+            room_price = int(room.find_element_by_class_name('origin-price').find_element_by_class_name('sprice') \
+                             .get_attribute('textContent').strip()[1:])
+            available = True if room.find_element_by_class_name(
+                'btn-book').text != '已订完' else False
+            # print(room_name)
+            # print(room_cancel)
+            # print(room_price)
+            # print(available)
+            # 判断是否为最低价格,如果是，则更新价格
+            if available and operator.le(room_price, min_price):
+                # print('发现更低价格：' + str(room_price))
+                min_price = room_price
+                temp_dict['name'] = hotel_name
+                temp_dict['bed_type'] = room_name
+                temp_dict['price'] = room_price
+                temp_dict['url'] = url
     browser.quit()  # 切记关闭浏览器，回收资源
     return temp_dict if temp_dict else '<去哪网>中目标酒店不存在！'
 
@@ -191,4 +169,4 @@ if __name__ == '__main__':
     start_time = datetime.datetime.now().strftime('%Y-%m-%d')
     end_time = (datetime.datetime.now() + Day()).strftime('%Y-%m-%d')
     #GetCtripHotelUrl('锦江都城酒店')  # 富豪/随意/丽思卡尔顿
-    GetQunarHotelLowestPrice('上海', '如家', '2018-07-23', '2018-07-26')
+    GetQunarHotelLowestPrice('上海', '万豪', '2018-07-23', '2018-07-26')

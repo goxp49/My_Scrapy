@@ -67,7 +67,11 @@ def GetHotelDetailInformation(shopId, hotel_name, start_date, end_date):
     buff = BytesIO(content)  # 把content转为文件对象
     f = gzip.GzipFile(fileobj=buff)
     file = f.read().decode('utf-8')
-    room_list = json.loads(file)['data']['hotelGoodsList']['roomList']
+    # 如果酒店没有房间，此处会报错
+    try:
+        room_list = json.loads(file)['data']['hotelGoodsList']['roomList']
+    except TypeError:
+        return None
     price_min = 99999
     dict_temp = {}
     # 获得房型大类
@@ -90,7 +94,7 @@ def GetTargetHotelIdAndName(city, keywords):
     city_index = to_pinyin(city)
     url = 'http://www.dianping.com/%s/hotel/_%s' % (city_index, keywords)
     new_url = quote(url, safe=string.printable)
-    print(new_url)
+    # print(new_url)
     request = urllib.request.Request(url=new_url, headers=headers)
     response = urllib.request.urlopen(request)
     content = response.read()
@@ -117,8 +121,8 @@ def GetDianPingLowestPrice(city, keyword, start_time, end_time):
     price_min = 99999   # 初始化最低价格
     result_dict = {}
     for id_name_dict in id_name_list:
-        #print(id_name_dict['id'])
-        #print(id_name_dict['name'])
+        # print(id_name_dict['id'])
+        # print(id_name_dict['name'])
         temp_result = GetHotelDetailInformation(id_name_dict['id'], id_name_dict['name'], start_time, end_time)
         # 需要判断是否有找到对应的酒店信息
         if temp_result and temp_result['price'] <= price_min:
@@ -140,4 +144,4 @@ if __name__ == '__main__':
     # print(GetHotelDetailInformation('2190139', now_time, next_day_time))
     # print(type(GetHotelDetailInformation('2190139', now_time, next_day_time)))
     # GetTargetHotelIds('上海', '如家')
-    GetDianPingLowestPrice('北京', '如家', '2018-07-22', '2018-07-24')
+    GetDianPingLowestPrice('北京', '丽思卡尔顿', '2018-07-23', '2018-07-24')

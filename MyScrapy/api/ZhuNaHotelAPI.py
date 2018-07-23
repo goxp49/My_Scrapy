@@ -99,21 +99,19 @@ def GetHotelInformationAPI(id_name_dict, star_time, end_time):
     # 获取的第一个房间价格一定是最低的
     # 'max_price = 0'表示酒店已经没有可预订的房间
     # result_list用于保存搜索结果
-    result_list = []
     for hotel in hotel_list:
         temp_dict = {}
         #temp_dict['available'] = False if hotel['max_price'] == 0 else True
         if hotel['max_price'] != 0:
             temp_dict['name'] = id_name_dict[str(hotel['zid'])]
-            temp_dict['price'] = hotel['rooms'][0]['plans'][0]['AverageRate']
             temp_dict['bed_type'] = hotel['rooms'][0]['bed']
+            temp_dict['price'] = hotel['rooms'][0]['plans'][0]['AverageRate']
             temp_dict['url'] = 'http://www.zhuna.cn/hotel-%s.html' % hotel['zid']
-            result_list.append(temp_dict)
             # print(temp_dict['name'])
             # print(temp_dict['min_price'])
             # print(temp_dict['bed_type'])
     # 返回搜索结果
-    return result_list
+    return temp_dict
 
 # 通过关键字与地点获取酒店的id和对应的名称，返回的是dict[id, val]
 def GetHotelIdName(city,keyword):
@@ -139,6 +137,8 @@ def GetHotelIdName(city,keyword):
     result_dict = {}
     for id_soup in id_soups:
         # 只保存含有关键字的结果
+        # print(keyword)
+        # print(id_soup.find('a').string)
         if keyword in id_soup.find('a').string:
             #从结果中提取出id值\对应的酒店名
             result_dict.setdefault(id_soup.attrs['id'].split('_')[1], id_soup.find('a').string)
@@ -151,7 +151,6 @@ def GetZhuNaHotelLowestPrice(city, keyword, start_time, end_time):
     id_name_dict = GetHotelIdName(city, keyword)
     # 确认搜索结果不为空
     if id_name_dict:
-        print('<住哪网>结果：')
         print(GetHotelInformationAPI(id_name_dict, start_time, end_time))
     else:
         print('<住哪网>中目标酒店不存在！')
@@ -161,5 +160,5 @@ if __name__ == '__main__':
     start_time = datetime.datetime.now().strftime('%Y-%m-%d')
     end_time = (datetime.datetime.now() + Day()).strftime('%Y-%m-%d')
     #GetHotelInformationAPI('11304,14764')
-    GetZhuNaHotelLowestPrice('上海', '新锦江大酒店', start_time, end_time)
+    GetZhuNaHotelLowestPrice('上海', '万豪宾馆', start_time, end_time)
     #GetHotelId('上海', '上海新锦江大酒店')

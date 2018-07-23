@@ -51,8 +51,8 @@ def GetQunarHotelLowestPrice(city, keyword, start_time, end_time):
     chrome_options.add_argument("--disable-plugins-discovery")
     chrome_options.add_argument(
         'user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"')
-    chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
-    #chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\Application\chrome.exe"  # 手动指定使用的浏览器位置
+    # chrome_options.binary_location = r"C:\Users\goxp\AppData\Local\Google\Chrome\Application\chrome.exe" #手动指定使用的浏览器位置
+    chrome_options.binary_location = r"C:\Users\wang\AppData\Local\Google\Chrome\Application\chrome.exe"  # 手动指定使用的浏览器位置
     prefs = {"profile.managed_default_content_settings.images": 2}  # 不加载图片
     chrome_options.add_experimental_option('prefs', prefs)
     # 打开请求的url
@@ -66,16 +66,16 @@ def GetQunarHotelLowestPrice(city, keyword, start_time, end_time):
         name = room.get_attribute('title')
         url = room.get_attribute('href')
         # 只保留含有关键字的目标
-        if name == keyword:
+        if keyword in name:
             urls.append(url)
-            print(name + ':' + url)
-    GetQunarHotelIformation(browser, urls)
+            # print(name + ':' + url)
+    print(GetQunarHotelIformation(browser, urls))
 
 
 def GetQunarHotelIformation(browser, urls):
-    hotel_all = []
     # 在不同窗口中打开不同url
     error_url = 0
+    # print(urls)
     for x in range(len(urls)):
         browser.get(urls[x - error_url])
         # 每个网页有5s时间加载，如果加载失败则移除该URL，并关闭对应CHROME窗口
@@ -92,8 +92,10 @@ def GetQunarHotelIformation(browser, urls):
         browser.execute_script('window.open()')
         browser._switch_to.window(browser.window_handles[x + 1 - error_url])
     # time.sleep(3)
+    # 建立临时变量存储最低价格的房间信息
+    temp_dict = {}
+    min_price = 99999  # 初始化最低价格
     # 获取各个URL中的信息
-    result = []
     for x in range(len(urls)):
         # 先切换回对应窗口
         browser._switch_to.window(browser.window_handles[x])
@@ -102,14 +104,10 @@ def GetQunarHotelIformation(browser, urls):
             '//*[@id="detail_pageHeader"]/h2/span').text if isElementExsitByXpath(browser,
                                                                                   '//*[@id="detail_pageHeader"]/h2/span') else \
             browser.find_element_by_xpath('//*[@id="bnb_detail_pageHeader"]/div[1]/h2/span').text
-
-        print(totel_name + '价格最低的房型为：')
+        # print(totel_name + '价格最低的房型为：')
         # 获取大房型列表,第二个为团购，忽略
         room_types = browser.find_element_by_class_name('m-room-tools-bd').find_elements_by_class_name(
             'room-item-inner')
-        # 建立临时变量存储最低价格的房间信息
-        temp_dict = {}
-        min_price = 99999  # 初始化最低价格
         # 获取每个酒店的小房型信息
         for room_type in room_types:
             for room in room_type.find_elements_by_class_name('tbl-tbd'):
@@ -139,15 +137,9 @@ def GetQunarHotelIformation(browser, urls):
                     temp_dict['bed_type'] = room_name
                     temp_dict['price'] = room_price
                     temp_dict['url'] = urls[x]
-
-        if temp_dict:
-            print(temp_dict['name'])
-            print(temp_dict['bed_type'])
-            print(temp_dict['price'])
-            print(temp_dict['url'])
-        else:
-            print('房间已无剩余！')
     browser.quit()  # 切记关闭浏览器，回收资源
+    return temp_dict if temp_dict else '<去哪网>中目标酒店不存在！'
+
 
 def GetCityIndex(city):
     # 设定去哪儿城市index API地址
@@ -158,7 +150,7 @@ def GetCityIndex(city):
     }
     data_bytes = urllib.parse.urlencode(data)
     new_url = api_url + "?" + data_bytes  #URL拼接
-    print(new_url)
+    # print(new_url)
     request = urllib.request.Request(url=new_url, headers=api_headers)
     response = urllib.request.urlopen(request)
     content = response.read()  # content是压缩过的数据
@@ -199,4 +191,4 @@ if __name__ == '__main__':
     start_time = datetime.datetime.now().strftime('%Y-%m-%d')
     end_time = (datetime.datetime.now() + Day()).strftime('%Y-%m-%d')
     #GetCtripHotelUrl('锦江都城酒店')  # 富豪/随意/丽思卡尔顿
-    GetQunarHotelLowestPrice('上海', 'xxxxxxxxxxxxxx上海贝尔特酒店', start_time, end_time)
+    GetQunarHotelLowestPrice('上海', '如家', '2018-07-23', '2018-07-26')

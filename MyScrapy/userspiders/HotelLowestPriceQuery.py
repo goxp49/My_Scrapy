@@ -8,11 +8,8 @@
     备注：当没找到合适的房间时返回None
 """
 
-import urllib.request, urllib.parse
-from io import BytesIO
-import json, time, gzip, datetime, threading
-import operator  # 导入运算符模块
-from pandas.tseries.offsets import Day
+
+import threading
 from MyScrapy.api.ZhuNaHotelAPI import GetZhuNaHotelLowestPrice
 from MyScrapy.api.QunarHotelAPI_S import GetQunarHotelLowestPrice
 from MyScrapy.api.DianPingHotelPriceAPI import GetDianPingLowestPrice

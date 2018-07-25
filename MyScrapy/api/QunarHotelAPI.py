@@ -55,7 +55,7 @@ def GetCityIndex(city):
         return False
 
 
-def GetTargetHotelList(city, city_index, keywords, start_time, end_time):
+def GetLowestPriceHotelId(city, city_index, keywords, start_time, end_time):
     api_url = 'https://touch.qunar.com/hotel/hotellist'
     # 设置请求内容
     data = {
@@ -78,26 +78,25 @@ def GetTargetHotelList(city, city_index, keywords, start_time, end_time):
     soup = BeautifulSoup(html, 'lxml')
     hotel_soups = soup.find_all('li', 'qt-bb-x1')
     price_min = 99999  # 初始化最低价格
-    lowest_hotel_id = None
+    hotel_id_name = {}
     for hotel in hotel_soups:
         hotel_name = hotel.find('p', 'hotel-title').string
         hotel_available = hotel.find('span', 'qt-mr5')
         hotel_price = hotel_available.get_text().split('n')[1] if hotel_available else '100000'
-        print(hotel_name)
-        print(hotel_price)
         if keywords in hotel_name and int(hotel_price) <= price_min:
             price_min = int(hotel_price)
-            lowest_hotel_id = hotel.get('data-id')
-    return lowest_hotel_id
+            hotel_id_name['id'] = hotel.get('data-id')
+            hotel_id_name['name'] = hotel_name
+    return hotel_id_name if hotel_id_name else None
 
 
 def GetTargetHotelPrice(hotel_id, hotel_name,start_time, end_time):
     api_url = 'https://touch.qunar.com/api/hotel/hotelprice'
     # 设置请求内容
     data = {
-        'seq': 'shanghai_city_24925',
-        'checkInDate': '2018-07-24',
-        'checkOutDate': '2018-07-25',
+        'seq': hotel_id,
+        'checkInDate': start_time,
+        'checkOutDate': end_time,
         'type': 0,
     }
     data_bytes = urllib.parse.urlencode(data)
@@ -111,7 +110,7 @@ def GetTargetHotelPrice(hotel_id, hotel_name,start_time, end_time):
     roomlist = json.loads(f.read().decode('utf-8'))['data']['rooms']
     price_min = 99999
     result_dict = {}
-    print(roomlist)
+    # print(roomlist)
     for room in roomlist:
         bed_type = room['name']
         price = int(room['lowPrice'])
@@ -120,13 +119,27 @@ def GetTargetHotelPrice(hotel_id, hotel_name,start_time, end_time):
             result_dict['name'] = hotel_name
             result_dict['bed_type'] = bed_type
             result_dict['price'] = price
-            result_dict['url'] = hotel_id.split('_')[-1:]
-            print(result_dict['url'])
-        print(bed_type)
-        print(price)
+            # http://hotel.qunar.com/city/shanghai_city/dt-20833/?fromDate=2018-07-27&toDate=2018-07-30
+            index_number = hotel_id.split('_')[-1:][0]
+            index_py = hotel_id.strip('_' + index_number)
+            result_dict['url'] = 'http://hotel.qunar.com/city/%s/dt-%s/?fromDate=%s&toDate=%s' % (index_py, index_number, \
+                                                                                                  start_time, end_time)
+    return result_dict
 
+# 获得最低价格
+def GetQunarHotelLowestPrice(city, keywords, start_time, end_time):
+    # 移除两端多余空格
+    keywords = keywords.strip()
+    city_index = GetCityIndex(city)
+    hotel_dict = GetLowestPriceHotelId(city, city_index, keywords, start_time, end_time)
+    if hotel_dict:
+        print(GetTargetHotelPrice(hotel_dict['id'], hotel_dict['name'],start_time, end_time))
+    else:
+        print('<去哪儿>中目标酒店不存在！')
 
 if __name__ == '__main__':
     # GetCtripHotelUrl('锦江都城酒店')  # 富豪/随意/丽思卡尔顿
-    # print(GetTargetHotelList('上海', 'shanghai_city', '丽思卡尔顿', '2018-07-24', '2018-07-26'))
-    print(GetTargetHotelPrice('shanghai_city_24925','n',1,1))
+    # print(GetLowestPriceHotelId('上海', 'shanghai_city', '上海随意民宿', '2018-07-25', '2018-07-26'))
+    # print(GetTargetHotelPrice('shanghai_city_24925','桔子精选酒店上海江桥曹安公路店 ', '2018-07-25', '2018-07-26'))
+    GetQunarHotelLowestPrice('上海','上海随意民宿', '2018-07-25', '2018-07-26')
+    # print('桔子精选' in '桔子精选酒店上海江桥曹安公路店')

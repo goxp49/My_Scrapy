@@ -11,7 +11,7 @@
 
 import threading
 from MyScrapy.api.ZhuNaHotelAPI import GetZhuNaHotelLowestPrice
-from MyScrapy.api.QunarHotelAPI_S import GetQunarHotelLowestPrice
+from MyScrapy.api.QunarHotelAPI import GetQunarHotelLowestPrice
 from MyScrapy.api.DianPingHotelPriceAPI import GetDianPingLowestPrice
 from MyScrapy.api.CtripHotelAPI import GetCtripHotelLowestPrice
 
@@ -31,4 +31,4 @@ def GetAllWebsitePirce(city, keyword, start_time, end_time):
 
 
 if __name__ == '__main__':
-    GetAllWebsitePirce('上海', '丽思卡尔顿', '2018-07-23', '2018-07-25')
+    GetAllWebsitePirce('上海', '上海新发展亚太JW万豪酒店', '2018-07-25', '2018-07-30')

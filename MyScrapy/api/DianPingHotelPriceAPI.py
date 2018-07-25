@@ -132,7 +132,7 @@ def GetDianPingLowestPrice(city, keyword, start_time, end_time):
             result_dict['price'] = temp_result['price']
             result_dict['url'] = temp_result['url']
     # 返回结果
-    print(result_dict if result_dict else '点评网没找到合适住房')
+    print(result_dict if result_dict else '<大众点评网>中目标酒店不存在！')
 
 
 

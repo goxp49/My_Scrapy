@@ -124,10 +124,13 @@ def GetHotelPricr(city_index, hotel_name, start_time, end_time):
         if hotel.find('span', 'J_price_lowList'):
             dict_temp['name'] = hotel.select_one('.hotel_name a').get('title')
             dict_temp['price'] = hotel.select_one('.J_price_lowList').string
+            # 判断是否还有剩余房间,如果能找到对象，说明已经没房
+            dict_temp['available'] = hotel.select_one('.sale_out')
+            # print(dict_temp['available'])
             # print(dict_temp['name'])
             # print(dict_temp['price'])
             # 只有酒店名中包含关键字才会被添加
-            if hotel_name in dict_temp['name'] and int(dict_temp['price']) <= price_min:
+            if hotel_name in dict_temp['name'] and int(dict_temp['price']) <= price_min and not dict_temp['available']:
                 price_min = int(dict_temp['price'])
                 result_dict['name']= dict_temp['name']
                 result_dict['bed_type'] = '未知'  # 暂时不需要实现，还需进一步爬取
@@ -144,11 +147,11 @@ def GetCtripHotelLowestPrice(city, keyword, start_time, end_time):
     try:
         city_index = GetCityIndex(city)
         result = GetHotelPricr(city_index, keyword, start_time, end_time)
-        print(result if result else '<携程>中目标酒店不存在！')
+        print(result if result else '<携程网>中目标酒店不存在！')
     except urllib.error.HTTPError:
-        print('<携程>中目标酒店不存在！')
+        print('<携程网>中目标酒店不存在！')
 
 
 
 if __name__ == '__main__':
-    GetCtripHotelLowestPrice('南宁', '如家', '2018-7-22', '2018-7-23')
+    GetCtripHotelLowestPrice('上海', '如家', '2018-7-22', '2018-7-23')

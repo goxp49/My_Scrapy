@@ -135,7 +135,7 @@ def GetQunarHotelLowestPrice(city, keywords, start_time, end_time):
     if hotel_dict:
         print(GetTargetHotelPrice(hotel_dict['id'], hotel_dict['name'],start_time, end_time))
     else:
-        print('<去哪儿>中目标酒店不存在！')
+        print('<去哪儿>中没有找到合适房型！')
 
 if __name__ == '__main__':
     # GetCtripHotelUrl('锦江都城酒店')  # 富豪/随意/丽思卡尔顿

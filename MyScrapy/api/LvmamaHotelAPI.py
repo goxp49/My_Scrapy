@@ -1,4 +1,3 @@
-from selenium import webdriver
 import urllib.request, urllib.parse
 from io import BytesIO
 import json, time, gzip, string, re
@@ -27,7 +26,7 @@ price_headers = {
 
 
 # 测试发现改变日期对价格显示无影响，显示的价格与酒店页面中价格不一致
-def GetTargetHotelUrl(city, keywords, start_time, end_time):
+def GetTargetHotelIdAndName(city, keywords, start_time, end_time):
     start_time = start_time.strip('-')
     end_time = end_time.strip('-')
     # http://s.lvmama.com/hotel/U9C20180727O20180728?keyword=%E5%A6%82%E5%AE%B6&mdd=%E4%B8%8A%E6%B5%B7
@@ -39,7 +38,7 @@ def GetTargetHotelUrl(city, keywords, start_time, end_time):
     }
     data_bytes = urllib.parse.urlencode(data)
     new_url = api_url + "?" + data_bytes  # URL拼接
-    print(new_url)
+    # print(new_url)
     request = urllib.request.Request(url=new_url, headers=id_headers)
     response = urllib.request.urlopen(request)
     content = response.read()  # content是压缩过的数据
@@ -53,9 +52,9 @@ def GetTargetHotelUrl(city, keywords, start_time, end_time):
     for hotel in hotel_soups:
         hotel_name = hotel.get('name')
         hotel_price = int(hotel.find('span', 'num').string)
-        print(hotel_name)
-        print(hotel_price)
-        print(keywords in hotel_name)
+        # print(hotel_name)
+        # print(hotel_price)
+        # print(keywords in hotel_name)
         if keywords in hotel_name and hotel_price <= price_min:
             price_min = hotel_price
             # 通过正则表达式获取属性中的酒店url地址 属性：clickAndRecovery('','','','1211259','如家快捷酒店（上海虹桥枢纽曹安路轻纺市场店）',
@@ -66,7 +65,7 @@ def GetTargetHotelUrl(city, keywords, start_time, end_time):
             result_dicr['name'] = hotel_name
             result_dicr['id'] = re.search(r'(https|http|ftp|rtsp|mms)?://[^\s]+[\D]+([\d]+).html', re_str).group(
                 2)  # 匹配结果
-    print(result_dicr)
+    # print(result_dicr)
     return result_dicr if result_dicr else None
 
 
@@ -105,16 +104,21 @@ def GetTargetHotelPrice(hotel_id, hotel_name, start_time, end_time):
             lowest_dict['bed_type'] = bed_type
             lowest_dict['price'] = price
             lowest_dict['url'] = 'http://hotels.lvmama.com/hotel/%s.html' % hotel_id
-    print(lowest_dict)
     return lowest_dict if lowest_dict else None
 
 
 # 获得最低价格
-def GetQunarHotelLowestPrice(city, keywords, start_time, end_time):
-    pass
+def GetLvmamaHotelLowestPrice(city, keywords, start_time, end_time):
+    id_name_dict = GetTargetHotelIdAndName(city, keywords, start_time, end_time)
+    if id_name_dict and 'id' in id_name_dict.keys() and 'name' in id_name_dict.keys():
+        result_dict = GetTargetHotelPrice(id_name_dict['id'], id_name_dict['name'], start_time, end_time)
+        print(result_dict if result_dict else ('<驴妈妈>中没有找到合适房型！'))
+    else:
+        print('<驴妈妈>中没有找到合适房型！')
 
 
 if __name__ == '__main__':
     # 上海龙安宾馆(1195995)\上海华晶宾馆(1196965)\玩具总动员酒店(662997)
     # GetTargetHotelUrl('上海','上海龙安宾馆', '2018-07-25', '2018-07-26')
-    GetTargetHotelPrice('1196965', '上海龙安宾馆', '2018-07-26', '2018-07-30')
+    # GetTargetHotelPrice('1196965', '上海龙安宾馆', '2018-07-27', '2018-07-30')
+    GetLvmamaHotelLowestPrice('上海', '上海新发展亚太JW万豪酒店', '2018-07-27', '2018-07-30')

@@ -40,7 +40,7 @@ def GetQunarHotelLowestPrice(city, keyword, start_time, end_time):
     # 获得对应城市的index，用于组成请求的url
     city_index = GetCityIndex(city)
     if not city_index:
-        print('<住哪网>中目标酒店不存在！')
+        print('<住哪网>中没有找到合适房型！')
         return None
     # print(city_index)
     url = 'http://hotel.qunar.com/city/%s/q-%s#fromDate=%s&toDate=%s' % (city_index, keyword, start_time, end_time)
@@ -67,7 +67,7 @@ def GetQunarHotelLowestPrice(city, keyword, start_time, end_time):
     if keyword in name:
         print(GetQunarHotelIformation(browser, url))
     else:
-        print('<去哪网>中目标酒店不存在！')
+        print('<去哪网>中没有找到合适房型！')
 
 
 def GetQunarHotelIformation(browser, url):
@@ -116,7 +116,7 @@ def GetQunarHotelIformation(browser, url):
                 temp_dict['price'] = room_price
                 temp_dict['url'] = url
     browser.quit()  # 切记关闭浏览器，回收资源
-    return temp_dict if temp_dict else '<去哪网>中目标酒店不存在！'
+    return temp_dict if temp_dict else '<去哪网>中没有找到合适房型！'
 
 
 def GetCityIndex(city):

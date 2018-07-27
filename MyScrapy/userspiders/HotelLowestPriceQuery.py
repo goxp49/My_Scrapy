@@ -14,13 +14,16 @@ from MyScrapy.api.ZhuNaHotelAPI import GetZhuNaHotelLowestPrice
 from MyScrapy.api.QunarHotelAPI import GetQunarHotelLowestPrice
 from MyScrapy.api.DianPingHotelPriceAPI import GetDianPingLowestPrice
 from MyScrapy.api.CtripHotelAPI import GetCtripHotelLowestPrice
+from MyScrapy.api.LvmamaHotelAPI import GetLvmamaHotelLowestPrice
 
+# 携程的价格需要通过APP端获取才会更便宜
 def GetAllWebsitePirce(city, keyword, start_time, end_time):
     thread_list = []  # 线程存放列表
     thread_list.append(threading.Thread(target=GetZhuNaHotelLowestPrice, args=(city, keyword, start_time, end_time), name='住哪网'))
     thread_list.append(threading.Thread(target=GetQunarHotelLowestPrice, args=(city, keyword, start_time, end_time), name='去哪网'))
     thread_list.append(threading.Thread(target=GetDianPingLowestPrice, args=(city, keyword, start_time, end_time), name='点评网'))
     thread_list.append(threading.Thread(target=GetCtripHotelLowestPrice, args=(city, keyword, start_time, end_time), name='携程网'))
+    thread_list.append(threading.Thread(target=GetLvmamaHotelLowestPrice, args=(city, keyword, start_time, end_time), name='驴妈妈网'))
     for t in thread_list:
         t.start()
 
@@ -31,4 +34,4 @@ def GetAllWebsitePirce(city, keyword, start_time, end_time):
 
 
 if __name__ == '__main__':
-    GetAllWebsitePirce('上海', '上海新发展亚太JW万豪酒店', '2018-07-25', '2018-07-30')
+    GetAllWebsitePirce('上海', '上海新发展亚太JW万豪酒店', '2018-07-27', '2018-07-28')

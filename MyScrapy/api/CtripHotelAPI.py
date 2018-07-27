@@ -147,9 +147,9 @@ def GetCtripHotelLowestPrice(city, keyword, start_time, end_time):
     try:
         city_index = GetCityIndex(city)
         result = GetHotelPricr(city_index, keyword, start_time, end_time)
-        print(result if result else '<携程网>中目标酒店不存在！')
+        print(result if result else '<携程网>中没有找到合适房型！')
     except urllib.error.HTTPError:
-        print('<携程网>中目标酒店不存在！')
+        print('<携程网>中没有找到合适房型！')
 
 
 

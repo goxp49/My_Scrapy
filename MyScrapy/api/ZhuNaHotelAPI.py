@@ -153,7 +153,7 @@ def GetZhuNaHotelLowestPrice(city, keyword, start_time, end_time):
     if id_name_dict:
         print(GetHotelInformationAPI(id_name_dict, start_time, end_time))
     else:
-        print('<住哪网>中目标酒店不存在！')
+        print('<住哪网>中没有找到合适房型！')
 
 
 if __name__ == '__main__':

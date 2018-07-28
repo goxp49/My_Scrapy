@@ -116,6 +116,9 @@ def GetTargetHotelPrice(hotel_id, hotel_name, start_time, end_time):
     response = urllib.request.urlopen(request)
     content = response.read()  # content是压缩过的数据
     room_type_list = json.loads(content.decode('utf-8'))['RoomList']
+    # 判断获取的房型是否正常
+    if not room_type_list:
+        return None
     price_min = 99999
     result_dict = {}
     # print(room_type_list)
@@ -152,4 +155,4 @@ if __name__ == '__main__':
     # GetCityIndexAPI('xxx')
     # GetTargetHotelIdAndName('321', '上海华晶宾馆', '2018-07-27', '2018-07-28')
     # GetTargetHotelPrice('91651904', '上海华晶宾馆', '2018-07-27', '2018-07-28')
-    GetLyHotelLowestPrice('上海', '上海华晶宾馆', '2018-07-27', '2018-07-28')
+    GetLyHotelLowestPrice('上海', '上海玩具总动员酒店', '2018-07-28', '2018-07-29')
